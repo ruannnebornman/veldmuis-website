@@ -1,0 +1,190 @@
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+
+:root {
+  color-scheme: dark;
+  --font-display: 'Bricolage Grotesque', 'Segoe UI', sans-serif;
+  --font-body: 'Manrope', 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Cascadia Code', monospace;
+
+  --color-bg-deep: #140d0d;
+  --color-bg-main: #201516;
+  --color-bg-panel: rgba(44, 27, 27, 0.82);
+  --color-bg-panel-strong: rgba(32, 18, 19, 0.92);
+  --color-bg-soft: rgba(93, 62, 67, 0.18);
+  --color-accent-bright: #f6bf58;
+  --color-accent-gold: #efaa3f;
+  --color-accent-copper: #cb6e31;
+  --color-accent-ember: #a34e29;
+  --color-accent-moss: #655d3f;
+  --color-accent-mauve: #72596f;
+  --color-cream: #fbf0df;
+  --color-sand: #e8d7be;
+  --color-text: #fff2e4;
+  --color-text-soft: #e5d3c1;
+  --color-text-muted: #baa694;
+  --color-border: rgba(255, 225, 192, 0.12);
+  --color-border-soft: rgba(255, 225, 192, 0.08);
+  --shadow-card: 0 22px 60px rgba(10, 5, 5, 0.3);
+  --shadow-glow: 0 14px 40px rgba(212, 120, 42, 0.25);
+  --radius-card: 1.6rem;
+  --radius-pill: 999px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background:
+    linear-gradient(180deg, rgba(13, 8, 8, 0.4), rgba(13, 8, 8, 0.72)),
+    url('/assets/rat1.png') 41% center / cover fixed no-repeat,
+    linear-gradient(180deg, #2b1a1b 0%, #191011 34%, #120b0b 100%);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 18% 30%, rgba(108, 78, 104, 0.38), transparent 28%),
+    radial-gradient(circle at 72% 28%, rgba(255, 182, 78, 0.16), transparent 24%),
+    linear-gradient(90deg, rgba(23, 13, 14, 0.56), rgba(23, 13, 14, 0.2) 34%, rgba(23, 13, 14, 0.08) 58%, rgba(23, 13, 14, 0.5) 100%);
+}
+
+a {
+  color: inherit;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--color-accent-bright);
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 3.35rem;
+  padding: 0.9rem 1.35rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-border);
+  text-decoration: none;
+  font-weight: 700;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.button:hover,
+.button:focus-visible {
+  transform: translateY(-2px);
+}
+
+.button-primary {
+  background: linear-gradient(135deg, var(--color-accent-bright), var(--color-accent-copper));
+  color: var(--color-bg-deep);
+  border-color: transparent;
+  box-shadow: var(--shadow-glow);
+}
+
+.button-secondary {
+  background: rgba(255, 245, 225, 0.04);
+  color: var(--color-text);
+}
+
+.button-secondary:hover,
+.button-secondary:focus-visible {
+  background: rgba(255, 245, 225, 0.08);
+  border-color: rgba(255, 214, 169, 0.18);
+}
+
+.badge {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  padding: 0.3rem 0.8rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(255, 208, 149, 0.16);
+  background: rgba(255, 222, 174, 0.08);
+  color: var(--color-sand);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.badge-soft {
+  background: rgba(133, 89, 91, 0.18);
+}
+
+.surface-card {
+  padding: 1.4rem;
+  border-radius: var(--radius-card);
+  border: 1px solid var(--color-border);
+  background:
+    linear-gradient(180deg, rgba(255, 238, 214, 0.03), transparent 30%),
+    linear-gradient(180deg, rgba(52, 31, 33, 0.88), rgba(27, 16, 18, 0.9));
+  box-shadow: var(--shadow-card);
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease;
+}
+
+.surface-card:hover,
+.surface-card:focus-within {
+  border-color: rgba(255, 206, 146, 0.2);
+  background:
+    linear-gradient(180deg, rgba(255, 238, 214, 0.04), transparent 30%),
+    linear-gradient(180deg, rgba(56, 34, 36, 0.92), rgba(29, 17, 19, 0.92));
+}
+
+.terminal-block {
+  padding: 1.25rem;
+  border-radius: calc(var(--radius-card) - 0.3rem);
+  border: 1px solid rgba(255, 204, 136, 0.1);
+  background:
+    linear-gradient(180deg, rgba(42, 24, 21, 0.92), rgba(19, 10, 11, 0.96));
+  box-shadow: inset 0 1px 0 rgba(255, 227, 191, 0.05);
+}
+
+.terminal-block code,
+.terminal-block pre {
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  line-height: 1.75;
+  color: var(--color-cream);
+}

@@ -1,0 +1,110 @@
+<a class="skip-link" href="#main-content">Skip to content</a>
+
+<main class="site-shell" id="main-content">
+  <section class="hero" id="top">
+    <a class="brand" href="#top" aria-label="Veldmuis Linux home">
+      <span class="brand-mark">VL</span>
+      <span class="brand-text">
+        <strong>{{ content.siteName }}</strong>
+        <span>{{ content.brandLine }}</span>
+      </span>
+    </a>
+
+    <div class="hero-layout">
+      <div class="hero-copy">
+        <p class="eyebrow">{{ content.hero.kicker }}</p>
+        <span class="badge">{{ content.hero.tagline }}</span>
+        <h1>{{ title() }}</h1>
+        <p class="hero-lead">{{ content.hero.description }}</p>
+
+        <div class="hero-actions">
+          <a
+            class="button button-primary"
+            [href]="content.hero.primaryCta.href"
+            [attr.target]="content.hero.primaryCta.external ? '_blank' : null"
+            [attr.rel]="content.hero.primaryCta.external ? 'noreferrer noopener' : null"
+          >
+            {{ content.hero.primaryCta.label }}
+          </a>
+          <a
+            class="button button-secondary"
+            [href]="content.hero.secondaryCta.href"
+            [attr.target]="content.hero.secondaryCta.external ? '_blank' : null"
+            [attr.rel]="content.hero.secondaryCta.external ? 'noreferrer noopener' : null"
+          >
+            {{ content.hero.secondaryCta.label }}
+          </a>
+        </div>
+
+        <div class="hero-meta">
+          @for (item of content.hero.meta; track item) {
+            <span class="meta-pill">{{ item }}</span>
+          }
+        </div>
+      </div>
+
+      <aside class="surface-card release-card">
+        <div class="release-topline">
+          <p class="eyebrow">{{ content.release.kicker }}</p>
+          <span class="badge badge-soft">{{ content.release.status }}</span>
+        </div>
+
+        <div class="release-heading">
+          <h2>{{ content.release.version }}</h2>
+          <span class="release-date">{{ content.release.date }}</span>
+        </div>
+
+        <p class="release-summary">{{ content.release.summary }}</p>
+
+        <ul class="release-points">
+          @for (point of content.release.points; track point) {
+            <li>{{ point }}</li>
+          }
+        </ul>
+
+        <dl class="release-meta-grid">
+          @for (item of content.release.details; track item.label) {
+            <div>
+              <dt>{{ item.label }}</dt>
+              <dd>{{ item.value }}</dd>
+            </div>
+          }
+        </dl>
+
+        <div class="release-actions">
+          <a
+            class="button button-primary"
+            [href]="content.release.primaryCta.href"
+            [attr.target]="content.release.primaryCta.external ? '_blank' : null"
+            [attr.rel]="content.release.primaryCta.external ? 'noreferrer noopener' : null"
+          >
+            {{ content.release.primaryCta.label }}
+          </a>
+          <a
+            class="button button-secondary"
+            [href]="content.release.secondaryCta.href"
+            [attr.target]="content.release.secondaryCta.external ? '_blank' : null"
+            [attr.rel]="content.release.secondaryCta.external ? 'noreferrer noopener' : null"
+          >
+            {{ content.release.secondaryCta.label }}
+          </a>
+        </div>
+      </aside>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <p>{{ content.footer.copy }} {{ currentYear }}</p>
+  <div class="footer-links">
+    @for (link of content.footer.links; track link.label) {
+      <a
+        [href]="link.href"
+        [attr.target]="link.external ? '_blank' : null"
+        [attr.rel]="link.external ? 'noreferrer noopener' : null"
+      >
+        {{ link.label }}
+      </a>
+    }
+  </div>
+</footer>
