@@ -32,6 +32,29 @@ npm run build   # Production build
 npm test        # Unit tests
 ```
 
+## GitHub Pages Deployment
+
+This repo includes a GitHub Actions workflow at `.github/workflows/pages.yml` that deploys the built site to GitHub Pages on every push to `main`.
+
+For this repository, the published URL will be:
+
+```text
+https://ruannnebornman.github.io/veldmuis-website/
+```
+
+### One-time GitHub setup
+
+1. Push this repository, including the workflow file, to GitHub.
+2. In GitHub, open `Settings` -> `Pages`.
+3. Under `Build and deployment`, set `Source` to `GitHub Actions`.
+4. Push to `main` or run the `Deploy to GitHub Pages` workflow manually from the `Actions` tab.
+
+### Notes
+
+- The workflow builds Angular with a repo-relative base path, so the site works under `/veldmuis-website/`.
+- The deploy artifact is uploaded from `dist/website/browser`.
+- If you later switch to a custom domain, update the build step in `.github/workflows/pages.yml` so the base href matches that domain root.
+
 ## Updating Site Content
 
 Most copy and external links live in:

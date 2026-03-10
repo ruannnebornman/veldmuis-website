@@ -45,7 +45,7 @@ body {
   min-width: 320px;
   background:
     linear-gradient(180deg, rgba(13, 8, 8, 0.4), rgba(13, 8, 8, 0.72)),
-    url('/assets/rat1.png') 41% center / cover fixed no-repeat,
+    url('../public/assets/rat1.png') 41% center / cover fixed no-repeat,
     linear-gradient(180deg, #2b1a1b 0%, #191011 34%, #120b0b 100%);
   color: var(--color-text);
   font-family: var(--font-body);
