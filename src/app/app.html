@@ -27,25 +27,25 @@
 
       <aside class="surface-card release-card">
         <div class="release-topline">
-          <p class="eyebrow">{{ content.release.kicker }}</p>
-          <span class="badge badge-soft">{{ content.release.status }}</span>
+          <p class="eyebrow">{{ releaseCard().kicker }}</p>
+          <span class="badge badge-soft">{{ releaseCard().status }}</span>
         </div>
 
         <div class="release-heading">
-          <h2>{{ content.release.version }}</h2>
-          <span class="release-date">{{ content.release.date }}</span>
+          <h2>{{ releaseCard().version }}</h2>
+          <span class="release-date">{{ releaseCard().date }}</span>
         </div>
 
-        <p class="release-summary">{{ content.release.summary }}</p>
+        <p class="release-summary">{{ releaseCard().summary }}</p>
 
         <ul class="release-points">
-          @for (point of content.release.points; track point) {
+          @for (point of releaseCard().points; track point) {
             <li>{{ point }}</li>
           }
         </ul>
 
         <dl class="release-meta-grid">
-          @for (item of content.release.details; track item.label) {
+          @for (item of releaseCard().details; track item.label) {
             <div>
               <dt>{{ item.label }}</dt>
               <dd>{{ item.value }}</dd>
@@ -56,19 +56,19 @@
         <div class="release-actions">
           <a
             class="button button-primary"
-            [href]="content.hero.primaryCta.href"
-            [attr.target]="content.hero.primaryCta.external ? '_blank' : null"
-            [attr.rel]="content.hero.primaryCta.external ? 'noreferrer noopener' : null"
+            [href]="releaseActions().primary.href"
+            [attr.target]="releaseActions().primary.external ? '_blank' : null"
+            [attr.rel]="releaseActions().primary.external ? 'noreferrer noopener' : null"
           >
-            {{ content.hero.primaryCta.label }}
+            {{ releaseActions().primary.label }}
           </a>
           <a
             class="button button-secondary"
-            [href]="content.hero.secondaryCta.href"
-            [attr.target]="content.hero.secondaryCta.external ? '_blank' : null"
-            [attr.rel]="content.hero.secondaryCta.external ? 'noreferrer noopener' : null"
+            [href]="releaseActions().secondary.href"
+            [attr.target]="releaseActions().secondary.external ? '_blank' : null"
+            [attr.rel]="releaseActions().secondary.external ? 'noreferrer noopener' : null"
           >
-            {{ content.hero.secondaryCta.label }}
+            {{ releaseActions().secondary.label }}
           </a>
         </div>
       </aside>
