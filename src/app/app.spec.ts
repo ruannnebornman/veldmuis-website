@@ -95,4 +95,47 @@ describe('App', () => {
     );
     expect(secondaryAction.getAttribute('href')).toContain('/releases/tag/0.1.0-alpha');
   });
+
+  it('should use an external ISO link from the release notes when no ISO asset is attached', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
+      ok: true,
+      json: async () => [
+        {
+          html_url: 'https://github.com/ruannnebornman/veldmuis/releases/tag/0.3.0-alpha',
+          tag_name: '0.3.0-alpha',
+          name: 'Veldmuis Linux 0.3.0-alpha',
+          draft: false,
+          prerelease: true,
+          published_at: '2026-03-19T14:32:33Z',
+          assets: [
+            {
+              name: 'veldmuis-2026.03.19-x86_64.iso.sha256',
+              size: 97,
+              browser_download_url:
+                'https://github.com/ruannnebornman/veldmuis/releases/download/0.3.0-alpha/veldmuis-2026.03.19-x86_64.iso.sha256',
+            },
+          ],
+          body:
+            '# Veldmuis Linux 0.3.0-alpha\n\n## Highlights\n- Fresh bare-metal and VM installs now complete cleanly through Calamares.\n- First-boot `sudo pacman -Syu` works without manual keyring recovery.\n\n## Release Assets\n- ISO download: https://drive.proton.me/urls/5FVKQT4G40#swN1c0HA3YcJ\n- Checksum: `veldmuis-2026.03.19-x86_64.iso.sha256`\n',
+        },
+      ],
+    } as Response);
+
+    const fixture = TestBed.createComponent(App);
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const primaryAction = compiled.querySelector('.release-actions .button-primary') as HTMLAnchorElement;
+
+    expect(compiled.querySelector('.release-heading h2')?.textContent).toContain('0.3.0-alpha');
+    expect(compiled.querySelector('.release-summary')?.textContent).toContain(
+      'Fresh bare-metal and VM installs now complete cleanly through Calamares.'
+    );
+    expect(primaryAction.getAttribute('href')).toBe(
+      'https://drive.proton.me/urls/5FVKQT4G40#swN1c0HA3YcJ'
+    );
+    expect(compiled.textContent).toContain('External ISO link');
+    expect(compiled.textContent).toContain('Hosted externally');
+  });
 });

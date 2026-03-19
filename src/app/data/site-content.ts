@@ -9,7 +9,7 @@ with signed package workflows,shaped around the
 African veld at sunset.`,
     primaryCta: {
       label: 'Download ISO',
-      href: 'https://github.com/ruannnebornman/veldmuis/releases',
+      href: 'https://drive.proton.me/urls/5FVKQT4G40#swN1c0HA3YcJ',
       external: true,
     },
     secondaryCta: {
@@ -23,18 +23,18 @@ African veld at sunset.`,
     kicker: 'Current release',
     status: 'Alpha milestone',
     date: 'March 2026',
-    version: '0.1 pre-alpha',
+    version: '0.3.0-alpha',
     summary:
-      'The live ISO boots, installs through the current archinstall bootstrap flow, and lands in a branded Plasma environment with Veldmuis defaults applied for a fresh user.',
+      'Fresh installs now complete cleanly through Calamares, first-boot pacman updates work without manual recovery, and the desktop baseline is broader and more usable out of the box.',
     points: [
-      'Bootable live ISO with Veldmuis branding',
-      'Working archinstall bootstrap path',
-      'Fresh-user Plasma defaults applied after install',
+      'Calamares install path validated on VM and bare metal',
+      'First-boot sudo pacman -Syu works cleanly',
+      'Firefox, Discover, Flatpak, and Steam included by default',
     ],
     details: [
       { label: 'Architecture', value: 'x86_64' },
       { label: 'Desktop', value: 'KDE Plasma' },
-      { label: 'Installer', value: 'archinstall bootstrap' },
+      { label: 'Installer', value: 'Calamares' },
       { label: 'Package flow', value: 'signed local Veldmuis repos' },
     ],
   },

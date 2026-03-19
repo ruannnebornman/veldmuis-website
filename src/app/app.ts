@@ -41,6 +41,14 @@ interface ReleaseAction {
   external: boolean;
 }
 
+interface ReleaseDownloadTarget {
+  label: string;
+  href: string;
+  external: boolean;
+  assetName: string;
+  assetSize: string;
+}
+
 function pickDisplayRelease(releases: GitHubRelease[]): GitHubRelease | null {
   return releases.find((release) => !release.draft) ?? null;
 }
@@ -119,6 +127,15 @@ function pickPrimaryAsset(assets: GitHubReleaseAsset[]): GitHubReleaseAsset | nu
   );
 }
 
+function extractExternalIsoUrl(body: string | null): string | null {
+  if (!body) {
+    return null;
+  }
+
+  const match = body.match(/ISO download:\s*(https?:\/\/\S+)/i);
+  return match?.[1] ?? null;
+}
+
 function inferReleaseStatus(release: GitHubRelease): string {
   const releaseText = `${release.tag_name} ${release.name ?? ''}`.toLowerCase();
 
@@ -175,6 +192,44 @@ function inferDownloadLabel(asset: GitHubReleaseAsset): string {
   return 'Download Asset';
 }
 
+function pickPrimaryDownloadTarget(release: GitHubRelease): ReleaseDownloadTarget | null {
+  const primaryAsset = pickPrimaryAsset(release.assets);
+
+  if (primaryAsset && /\.iso$/i.test(primaryAsset.name)) {
+    return {
+      label: inferDownloadLabel(primaryAsset),
+      href: primaryAsset.browser_download_url,
+      external: true,
+      assetName: primaryAsset.name,
+      assetSize: formatBytes(primaryAsset.size),
+    };
+  }
+
+  const externalIsoUrl = extractExternalIsoUrl(release.body);
+
+  if (externalIsoUrl) {
+    return {
+      label: 'Download ISO',
+      href: externalIsoUrl,
+      external: true,
+      assetName: 'External ISO link',
+      assetSize: 'Hosted externally',
+    };
+  }
+
+  if (primaryAsset) {
+    return {
+      label: inferDownloadLabel(primaryAsset),
+      href: primaryAsset.browser_download_url,
+      external: true,
+      assetName: primaryAsset.name,
+      assetSize: formatBytes(primaryAsset.size),
+    };
+  }
+
+  return null;
+}
+
 function buildReleaseCard(
   release: GitHubRelease,
   fallbackRelease: typeof siteContent.release
@@ -182,7 +237,7 @@ function buildReleaseCard(
   const highlights = extractSectionBullets(release.body, 'Highlights');
   const allBullets = extractAllBullets(release.body);
   const summary = highlights[0] ?? extractFirstParagraph(release.body) ?? fallbackRelease.summary;
-  const primaryAsset = pickPrimaryAsset(release.assets);
+  const primaryDownloadTarget = pickPrimaryDownloadTarget(release);
   const points = (highlights.length > 1 ? highlights.slice(1) : allBullets)
     .filter((point) => point !== summary)
     .slice(0, 3);
@@ -197,8 +252,8 @@ function buildReleaseCard(
     details: [
       { label: 'Release tag', value: release.tag_name || fallbackRelease.version },
       { label: 'Channel', value: release.prerelease ? 'Prerelease' : 'Stable' },
-      { label: 'Primary asset', value: primaryAsset?.name ?? 'Release page only' },
-      { label: 'Asset size', value: primaryAsset ? formatBytes(primaryAsset.size) : 'n/a' },
+      { label: 'Primary asset', value: primaryDownloadTarget?.assetName ?? 'Release page only' },
+      { label: 'Asset size', value: primaryDownloadTarget?.assetSize ?? 'n/a' },
     ],
   };
 }
@@ -207,14 +262,14 @@ function buildReleaseActions(
   release: GitHubRelease,
   fallbackHero: typeof siteContent.hero
 ): { primary: ReleaseAction; secondary: ReleaseAction } {
-  const primaryAsset = pickPrimaryAsset(release.assets);
+  const primaryDownloadTarget = pickPrimaryDownloadTarget(release);
 
   return {
-    primary: primaryAsset
+    primary: primaryDownloadTarget
       ? {
-          label: inferDownloadLabel(primaryAsset),
-          href: primaryAsset.browser_download_url,
-          external: true,
+          label: primaryDownloadTarget.label,
+          href: primaryDownloadTarget.href,
+          external: primaryDownloadTarget.external,
         }
       : fallbackHero.primaryCta,
     secondary: {
