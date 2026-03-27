@@ -265,7 +265,6 @@ function buildReleaseCard(
   const highlights = extractSectionBullets(release.body, 'Highlights');
   const allBullets = extractAllBullets(release.body);
   const summary = highlights[0] ?? extractFirstParagraph(release.body) ?? fallbackRelease.summary;
-  const primaryDownloadTarget = pickPrimaryDownloadTarget(release);
   const points = (highlights.length > 1 ? highlights.slice(1) : allBullets)
     .filter((point) => point !== summary)
     .slice(0, 3);
@@ -280,8 +279,6 @@ function buildReleaseCard(
     details: [
       { label: 'Release tag', value: release.tag_name || fallbackRelease.version },
       { label: 'Channel', value: release.prerelease ? 'Prerelease' : 'Stable' },
-      { label: 'Primary asset', value: primaryDownloadTarget?.assetName ?? 'Release page only' },
-      { label: 'Asset size', value: primaryDownloadTarget?.assetSize ?? 'n/a' },
     ],
   };
 }

@@ -73,9 +73,9 @@ describe('App', () => {
             '# Veldmuis Linux 1.4.1-beta\n\n## Highlights\n- Beta release.\n',
         },
         {
-          html_url: 'https://github.com/ruannnebornman/veldmuis/releases/tag/1.4.0',
-          tag_name: '1.4.0',
-          name: 'Veldmuis Linux 1.4.0',
+          html_url: 'https://github.com/ruannnebornman/veldmuis/releases/tag/2.0.0',
+          tag_name: '2.0.0',
+          name: 'Veldmuis Linux 2.0.0',
           draft: false,
           prerelease: false,
           published_at: '2026-04-01T08:13:43Z',
@@ -84,11 +84,11 @@ describe('App', () => {
               name: 'veldmuis-2026.04.01-x86_64.iso.sha256',
               size: 97,
               browser_download_url:
-                'https://github.com/ruannnebornman/veldmuis/releases/download/1.4.0/veldmuis-2026.04.01-x86_64.iso.sha256',
+                'https://github.com/ruannnebornman/veldmuis/releases/download/2.0.0/veldmuis-2026.04.01-x86_64.iso.sha256',
             },
           ],
           body:
-            '# Veldmuis Linux 1.4.0\n\n## Highlights\n- First stable hosted release.\n\n## Downloads\nISO download: https://downloads.veldmuislinux.org/iso/latest.iso\nChecksum asset: `veldmuis-2026.04.01-x86_64.iso.sha256`\n',
+            '# Veldmuis Linux 2.0.0\n\n## Highlights\n- First stable hosted release.\n\n## Downloads\nISO download: https://downloads.veldmuislinux.org/iso/latest.iso\nChecksum asset: `veldmuis-2026.04.01-x86_64.iso.sha256`\n',
         },
       ],
     } as Response);
@@ -105,11 +105,11 @@ describe('App', () => {
     expect(compiled.querySelector('.release-topline .eyebrow')?.textContent).toContain(
       'Latest GitHub release'
     );
-    expect(compiled.querySelector('.release-heading h2')?.textContent).toContain('1.4.0');
+    expect(compiled.querySelector('.release-heading h2')?.textContent).toContain('2.0.0');
     expect(compiled.querySelector('.release-summary')?.textContent).toContain('First stable hosted release.');
     expect(primaryAction.getAttribute('href')).toBe('https://downloads.veldmuislinux.org/iso/latest.iso');
     expect(secondaryAction.getAttribute('href')).toContain('.iso.sha256');
-    expect(releaseLink.getAttribute('href')).toContain('/releases/tag/1.4.0');
+    expect(releaseLink.getAttribute('href')).toContain('/releases/tag/2.0.0');
     expect(compiled.textContent).toContain('Stable');
   });
 
@@ -118,9 +118,9 @@ describe('App', () => {
       ok: true,
       json: async () => [
         {
-          html_url: 'https://github.com/ruannnebornman/veldmuis/releases/tag/1.4.0',
-          tag_name: '1.4.0',
-          name: 'Veldmuis Linux 1.4.0',
+          html_url: 'https://github.com/ruannnebornman/veldmuis/releases/tag/2.0.0',
+          tag_name: '2.0.0',
+          name: 'Veldmuis Linux 2.0.0',
           draft: false,
           prerelease: false,
           published_at: '2026-04-01T08:13:43Z',
@@ -129,11 +129,11 @@ describe('App', () => {
               name: 'veldmuis-2026.04.01-x86_64.iso.sha256',
               size: 97,
               browser_download_url:
-                'https://github.com/ruannnebornman/veldmuis/releases/download/1.4.0/veldmuis-2026.04.01-x86_64.iso.sha256',
+                'https://github.com/ruannnebornman/veldmuis/releases/download/2.0.0/veldmuis-2026.04.01-x86_64.iso.sha256',
             },
           ],
           body:
-            '# Veldmuis Linux 1.4.0\n\n## Highlights\n- Hosted ISO delivery is now live on the stable release line.\n- The website reads the stable external download URL from the release body.\n\n## Downloads\nISO download: https://downloads.veldmuislinux.org/iso/latest.iso\nChecksum asset: `veldmuis-2026.04.01-x86_64.iso.sha256`\n',
+            '# Veldmuis Linux 2.0.0\n\n## Highlights\n- Hosted ISO delivery is now live on the stable release line.\n- The website reads the stable external download URL from the release body.\n\n## Downloads\nISO download: https://downloads.veldmuislinux.org/iso/latest.iso\nChecksum asset: `veldmuis-2026.04.01-x86_64.iso.sha256`\n',
         },
       ],
     } as Response);
@@ -146,14 +146,14 @@ describe('App', () => {
     const primaryAction = compiled.querySelector('.release-actions .button-primary') as HTMLAnchorElement;
     const secondaryAction = compiled.querySelector('.release-actions .button-secondary') as HTMLAnchorElement;
 
-    expect(compiled.querySelector('.release-heading h2')?.textContent).toContain('1.4.0');
+    expect(compiled.querySelector('.release-heading h2')?.textContent).toContain('2.0.0');
     expect(compiled.querySelector('.release-summary')?.textContent).toContain(
       'Hosted ISO delivery is now live on the stable release line.'
     );
     expect(primaryAction.getAttribute('href')).toBe('https://downloads.veldmuislinux.org/iso/latest.iso');
     expect(secondaryAction.getAttribute('href')).toBe('https://downloads.veldmuislinux.org/iso/latest.iso.sha256');
-    expect(compiled.textContent).toContain('External ISO link');
-    expect(compiled.textContent).toContain('Hosted externally');
+    expect(compiled.textContent).not.toContain('Primary asset');
+    expect(compiled.textContent).not.toContain('Asset size');
     expect(compiled.textContent).toContain('Stable');
   });
 
@@ -239,6 +239,7 @@ describe('App', () => {
     expect(primaryAction.getAttribute('href')).toBe('https://downloads.veldmuislinux.org/iso/latest.iso');
     expect(secondaryAction.getAttribute('href')).toBe('https://downloads.veldmuislinux.org/iso/latest.iso.sha256');
     expect(primaryAction.textContent).toContain('Download ISO');
-    expect(compiled.textContent).toContain('veldmuis-2026.03.27-x86_64.manifest.txt');
+    expect(compiled.textContent).not.toContain('Primary asset');
+    expect(compiled.textContent).not.toContain('Asset size');
   });
 });
