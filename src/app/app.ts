@@ -41,6 +41,12 @@ interface ReleaseAction {
   external: boolean;
 }
 
+interface ReleaseActions {
+  primary: ReleaseAction;
+  secondary: ReleaseAction;
+  tertiary: ReleaseAction;
+}
+
 interface ReleaseDownloadTarget {
   label: string;
   href: string;
@@ -134,6 +140,20 @@ function extractExternalIsoUrl(body: string | null): string | null {
 
   const match = body.match(/ISO download:\s*(https?:\/\/\S+)/i);
   return match?.[1] ?? null;
+}
+
+function extractExternalChecksumUrl(body: string | null): string | null {
+  if (!body) {
+    return null;
+  }
+
+  const checksumDownloadMatch = body.match(/SHA256 download:\s*(https?:\/\/\S+)/i);
+  if (checksumDownloadMatch?.[1]) {
+    return checksumDownloadMatch[1];
+  }
+
+  const directChecksumMatch = body.match(/Direct HTTPS checksum:\s*(https?:\/\/\S+)/i);
+  return directChecksumMatch?.[1] ?? null;
 }
 
 function inferReleaseStatus(release: GitHubRelease): string {
@@ -269,25 +289,56 @@ function buildReleaseCard(
 function buildReleaseActions(
   release: GitHubRelease,
   fallbackHero: typeof siteContent.hero
-): { primary: ReleaseAction; secondary: ReleaseAction } {
+): ReleaseActions {
   const externalIsoUrl = extractExternalIsoUrl(release.body);
+  const externalChecksumUrl = extractExternalChecksumUrl(release.body);
   const isoAsset = release.assets.find((asset) => /\.iso$/i.test(asset.name));
+  const checksumAsset = release.assets.find((asset) => /\.sha256$/i.test(asset.name));
+  const fallbackChecksumUrl = `${fallbackHero.primaryCta.href}.sha256`;
+  let primary: ReleaseAction;
+  let secondary: ReleaseAction;
 
-  return {
-    primary: externalIsoUrl
+  if (externalIsoUrl) {
+    primary = {
+      label: 'Download ISO',
+      href: externalIsoUrl,
+      external: true,
+    };
+    secondary = {
+      label: 'Download SHA256',
+      href: externalChecksumUrl ?? `${externalIsoUrl}.sha256`,
+      external: true,
+    };
+  } else if (isoAsset) {
+    primary = {
+      label: 'Download ISO',
+      href: isoAsset.browser_download_url,
+      external: true,
+    };
+    secondary = checksumAsset
       ? {
-          label: 'Download ISO',
-          href: externalIsoUrl,
+          label: 'Download SHA256',
+          href: checksumAsset.browser_download_url,
           external: true,
         }
-      : isoAsset
-        ? {
-            label: 'Download ISO',
-            href: isoAsset.browser_download_url,
-            external: true,
-          }
-        : fallbackHero.primaryCta,
-    secondary: {
+      : {
+          label: 'Download SHA256',
+          href: fallbackChecksumUrl,
+          external: true,
+        };
+  } else {
+    primary = fallbackHero.primaryCta;
+    secondary = {
+      label: 'Download SHA256',
+      href: fallbackChecksumUrl,
+      external: true,
+    };
+  }
+
+  return {
+    primary,
+    secondary,
+    tertiary: {
       label: 'View Release',
       href: release.html_url || fallbackHero.secondaryCta.href,
       external: true,
@@ -314,7 +365,12 @@ export class App {
       ? buildReleaseActions(this.latestRelease()!, this.content.hero)
       : {
           primary: this.content.hero.primaryCta,
-          secondary: this.content.hero.secondaryCta,
+          secondary: {
+            label: 'Download SHA256',
+            href: `${this.content.hero.primaryCta.href}.sha256`,
+            external: true,
+          },
+          tertiary: this.content.hero.secondaryCta,
         }
   );
 

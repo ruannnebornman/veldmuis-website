@@ -71,6 +71,14 @@
             {{ releaseActions().secondary.label }}
           </a>
         </div>
+        <a
+          class="release-link"
+          [href]="releaseActions().tertiary.href"
+          [attr.target]="releaseActions().tertiary.external ? '_blank' : null"
+          [attr.rel]="releaseActions().tertiary.external ? 'noreferrer noopener' : null"
+        >
+          {{ releaseActions().tertiary.label }}
+        </a>
       </aside>
     </div>
   </section>
