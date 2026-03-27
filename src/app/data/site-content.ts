@@ -9,7 +9,7 @@ with signed package workflows,shaped around the
 African veld at sunset.`,
     primaryCta: {
       label: 'Download ISO',
-      href: 'http://downloads.veldmuislinux.org',
+      href: 'https://downloads.veldmuislinux.org/iso/latest.iso',
       external: true,
     },
     secondaryCta: {

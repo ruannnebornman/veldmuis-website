@@ -192,6 +192,14 @@ function inferDownloadLabel(asset: GitHubReleaseAsset): string {
   return 'Download Asset';
 }
 
+function formatReleaseVersion(tag: string | null | undefined, fallback: string): string {
+  if (!tag) {
+    return fallback;
+  }
+
+  return tag.replace(/^v(?=\d)/, '');
+}
+
 function pickPrimaryDownloadTarget(release: GitHubRelease): ReleaseDownloadTarget | null {
   const primaryAsset = pickPrimaryAsset(release.assets);
 
@@ -246,7 +254,7 @@ function buildReleaseCard(
     kicker: 'Latest GitHub release',
     status: inferReleaseStatus(release),
     date: formatReleaseDate(release.published_at, fallbackRelease.date),
-    version: release.tag_name || fallbackRelease.version,
+    version: formatReleaseVersion(release.tag_name, fallbackRelease.version),
     summary,
     points: points.length > 0 ? points : fallbackRelease.points,
     details: [
