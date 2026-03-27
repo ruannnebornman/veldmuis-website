@@ -36,22 +36,24 @@
           <span class="release-date">{{ releaseCard().date }}</span>
         </div>
 
-        <p class="release-summary">{{ releaseCard().summary }}</p>
+        <div class="release-scroll-region">
+          <p class="release-summary">{{ releaseCard().summary }}</p>
 
-        <ul class="release-points">
-          @for (point of releaseCard().points; track point) {
-            <li>{{ point }}</li>
-          }
-        </ul>
+          <ul class="release-points">
+            @for (point of releaseCard().points; track point) {
+              <li>{{ point }}</li>
+            }
+          </ul>
 
-        <dl class="release-meta-grid">
-          @for (item of releaseCard().details; track item.label) {
-            <div>
-              <dt>{{ item.label }}</dt>
-              <dd>{{ item.value }}</dd>
-            </div>
-          }
-        </dl>
+          <dl class="release-meta-grid">
+            @for (item of releaseCard().details; track item.label) {
+              <div>
+                <dt>{{ item.label }}</dt>
+                <dd>{{ item.value }}</dd>
+              </div>
+            }
+          </dl>
+        </div>
 
         <div class="release-actions">
           <a

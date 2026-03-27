@@ -236,9 +236,11 @@ describe('App', () => {
     const secondaryAction = compiled.querySelector('.release-actions .button-secondary') as HTMLAnchorElement;
 
     expect(compiled.querySelector('.release-heading h2')?.textContent).toContain('1.4.1');
+    expect(compiled.querySelector('.release-summary')?.textContent).toContain('Stable hosted release.');
     expect(primaryAction.getAttribute('href')).toBe('https://downloads.veldmuislinux.org/iso/latest.iso');
     expect(secondaryAction.getAttribute('href')).toBe('https://downloads.veldmuislinux.org/iso/latest.iso.sha256');
     expect(primaryAction.textContent).toContain('Download ISO');
+    expect(compiled.textContent).not.toContain('ISO download: /latest.iso');
     expect(compiled.textContent).not.toContain('Primary asset');
     expect(compiled.textContent).not.toContain('Asset size');
   });

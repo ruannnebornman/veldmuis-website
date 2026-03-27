@@ -55,6 +55,34 @@ interface ReleaseDownloadTarget {
   assetSize: string;
 }
 
+function isMarkdownHeading(line: string): boolean {
+  return /^#{1,6}\s+/.test(line);
+}
+
+function matchesSectionHeading(line: string, sectionHeading: string): boolean {
+  const headingMatch = line.match(/^#{1,6}\s+(.+)$/);
+  return headingMatch?.[1]?.trim().toLowerCase() === sectionHeading.toLowerCase();
+}
+
+function isReleaseMetadataLine(line: string): boolean {
+  const normalized = line.trim().toLowerCase();
+
+  return (
+    normalized.startsWith('iso download:') ||
+    normalized.startsWith('sha256 download:') ||
+    normalized.startsWith('checksum asset:') ||
+    normalized.startsWith('sha256:') ||
+    normalized.startsWith('direct https iso:') ||
+    normalized.startsWith('direct https checksum:') ||
+    normalized.startsWith('primary asset:') ||
+    normalized.startsWith('asset size:')
+  );
+}
+
+function cleanReleaseText(text: string): string {
+  return text.replace(/`([^`]+)`/g, '$1').replace(/\s+/g, ' ').trim();
+}
+
 function pickDisplayRelease(releases: GitHubRelease[]): GitHubRelease | null {
   return releases.find((release) => !release.draft && !release.prerelease) ?? null;
 }
@@ -65,23 +93,22 @@ function extractSectionBullets(body: string | null, sectionHeading: string): str
   }
 
   const bullets: string[] = [];
-  const targetHeading = `## ${sectionHeading}`.toLowerCase();
   let inSection = false;
 
   for (const line of body.split('\n')) {
     const trimmedLine = line.trim();
 
-    if (trimmedLine.startsWith('## ')) {
+    if (isMarkdownHeading(trimmedLine)) {
       if (inSection) {
         break;
       }
 
-      inSection = trimmedLine.toLowerCase() === targetHeading;
+      inSection = matchesSectionHeading(trimmedLine, sectionHeading);
       continue;
     }
 
     if (inSection && trimmedLine.startsWith('- ')) {
-      bullets.push(trimmedLine.slice(2).trim());
+      bullets.push(cleanReleaseText(trimmedLine.slice(2)));
     }
   }
 
@@ -97,7 +124,7 @@ function extractAllBullets(body: string | null): string[] {
     .split('\n')
     .map((line) => line.trim())
     .filter((line) => line.startsWith('- '))
-    .map((line) => line.slice(2).trim());
+    .map((line) => cleanReleaseText(line.slice(2)));
 }
 
 function extractFirstParagraph(body: string | null): string | null {
@@ -110,7 +137,12 @@ function extractFirstParagraph(body: string | null): string | null {
   for (const line of body.split('\n')) {
     const trimmedLine = line.trim();
 
-    if (!trimmedLine || trimmedLine.startsWith('#') || trimmedLine.startsWith('- ')) {
+    if (
+      !trimmedLine ||
+      isMarkdownHeading(trimmedLine) ||
+      trimmedLine.startsWith('- ') ||
+      isReleaseMetadataLine(trimmedLine)
+    ) {
       if (paragraphLines.length > 0) {
         break;
       }
@@ -118,7 +150,7 @@ function extractFirstParagraph(body: string | null): string | null {
       continue;
     }
 
-    paragraphLines.push(trimmedLine);
+    paragraphLines.push(cleanReleaseText(trimmedLine));
   }
 
   return paragraphLines.length > 0 ? paragraphLines.join(' ') : null;
@@ -264,10 +296,12 @@ function buildReleaseCard(
 ): ReleaseCardContent {
   const highlights = extractSectionBullets(release.body, 'Highlights');
   const allBullets = extractAllBullets(release.body);
-  const summary = highlights[0] ?? extractFirstParagraph(release.body) ?? fallbackRelease.summary;
-  const points = (highlights.length > 1 ? highlights.slice(1) : allBullets)
+  const summary = cleanReleaseText(
+    highlights[0] ?? allBullets[0] ?? extractFirstParagraph(release.body) ?? fallbackRelease.summary
+  );
+  const points = (highlights.length > 0 ? highlights.slice(1) : allBullets.slice(1))
     .filter((point) => point !== summary)
-    .slice(0, 3);
+    .slice(0, 2);
 
   return {
     kicker: 'Latest GitHub release',
