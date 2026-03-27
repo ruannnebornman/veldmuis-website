@@ -111,27 +111,27 @@ describe('App', () => {
     expect(compiled.textContent).toContain('Stable');
   });
 
-  it('should use an external ISO link from the release notes when no ISO asset is attached', async () => {
+  it('should use an external ISO link from a stable release when no ISO asset is attached', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
       ok: true,
       json: async () => [
         {
-          html_url: 'https://github.com/ruannnebornman/veldmuis/releases/tag/0.3.0-alpha',
-          tag_name: '0.3.0-alpha',
-          name: 'Veldmuis Linux 0.3.0-alpha',
+          html_url: 'https://github.com/ruannnebornman/veldmuis/releases/tag/1.4.0',
+          tag_name: '1.4.0',
+          name: 'Veldmuis Linux 1.4.0',
           draft: false,
-          prerelease: true,
-          published_at: '2026-03-19T14:32:33Z',
+          prerelease: false,
+          published_at: '2026-04-01T08:13:43Z',
           assets: [
             {
-              name: 'veldmuis-2026.03.19-x86_64.iso.sha256',
+              name: 'veldmuis-2026.04.01-x86_64.iso.sha256',
               size: 97,
               browser_download_url:
-                'https://github.com/ruannnebornman/veldmuis/releases/download/0.3.0-alpha/veldmuis-2026.03.19-x86_64.iso.sha256',
+                'https://github.com/ruannnebornman/veldmuis/releases/download/1.4.0/veldmuis-2026.04.01-x86_64.iso.sha256',
             },
           ],
           body:
-            '# Veldmuis Linux 0.3.0-alpha\n\n## Highlights\n- Fresh bare-metal and VM installs now complete cleanly through Calamares.\n- First-boot `sudo pacman -Syu` works without manual keyring recovery.\n\n## Downloads\nISO download: http://downloads.veldmuislinux.org\nChecksum asset: `veldmuis-2026.03.19-x86_64.iso.sha256`\n',
+            '# Veldmuis Linux 1.4.0\n\n## Highlights\n- Hosted ISO delivery is now live on the stable release line.\n- The website reads the stable external download URL from the release body.\n\n## Downloads\nISO download: http://downloads.veldmuislinux.org\nChecksum asset: `veldmuis-2026.04.01-x86_64.iso.sha256`\n',
         },
       ],
     } as Response);
@@ -143,12 +143,50 @@ describe('App', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const primaryAction = compiled.querySelector('.release-actions .button-primary') as HTMLAnchorElement;
 
-    expect(compiled.querySelector('.release-heading h2')?.textContent).toContain('0.3.0-alpha');
+    expect(compiled.querySelector('.release-heading h2')?.textContent).toContain('1.4.0');
     expect(compiled.querySelector('.release-summary')?.textContent).toContain(
-      'Fresh bare-metal and VM installs now complete cleanly through Calamares.'
+      'Hosted ISO delivery is now live on the stable release line.'
     );
     expect(primaryAction.getAttribute('href')).toBe('http://downloads.veldmuislinux.org');
     expect(compiled.textContent).toContain('External ISO link');
     expect(compiled.textContent).toContain('Hosted externally');
+    expect(compiled.textContent).toContain('Stable');
+  });
+
+  it('should fall back to the bundled stable download path when only prereleases exist', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
+      ok: true,
+      json: async () => [
+        {
+          html_url: 'https://github.com/ruannnebornman/veldmuis/releases/tag/1.3.1-beta',
+          tag_name: '1.3.1-beta',
+          name: 'Veldmuis Linux 1.3.1-beta',
+          draft: false,
+          prerelease: true,
+          published_at: '2026-03-20T08:13:43Z',
+          assets: [
+            {
+              name: 'veldmuis-2026.03.20-x86_64.iso.sha256',
+              size: 97,
+              browser_download_url:
+                'https://github.com/ruannnebornman/veldmuis/releases/download/1.3.1-beta/veldmuis-2026.03.20-x86_64.iso.sha256',
+            },
+          ],
+          body:
+            '## Highlights\n- Hosted prerelease.\n\n## Downloads\nISO download: https://old-host.invalid/iso.iso\n',
+        },
+      ],
+    } as Response);
+
+    const fixture = TestBed.createComponent(App);
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const primaryAction = compiled.querySelector('.release-actions .button-primary') as HTMLAnchorElement;
+
+    expect(compiled.querySelector('.release-heading h2')?.textContent).toContain('1.4.0');
+    expect(primaryAction.getAttribute('href')).toBe('http://downloads.veldmuislinux.org');
+    expect(compiled.textContent).toContain('Stable release line');
   });
 });

@@ -21,15 +21,15 @@ African veld at sunset.`,
   },
   release: {
     kicker: 'Current release',
-    status: 'Alpha milestone',
+    status: 'Stable release line',
     date: 'March 2026',
-    version: '0.3.0-alpha',
+    version: '1.4.0',
     summary:
-      'Fresh installs now complete cleanly through Calamares, first-boot pacman updates work without manual recovery, and the desktop baseline is broader and more usable out of the box.',
+      'Hosted ISO delivery, signed package publishing, and the website download path are now aligned for the next stable Veldmuis release.',
     points: [
-      'Calamares install path validated on VM and bare metal',
-      'First-boot sudo pacman -Syu works cleanly',
-      'Firefox, Discover, Flatpak, and Steam included by default',
+      'Download button points at the current hosted ISO path',
+      'Signed package repositories publish to packages.veldmuislinux.org',
+      'Next stable version is planned as 1.4.0',
     ],
     details: [
       { label: 'Architecture', value: 'x86_64' },

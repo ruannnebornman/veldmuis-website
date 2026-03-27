@@ -50,11 +50,7 @@ interface ReleaseDownloadTarget {
 }
 
 function pickDisplayRelease(releases: GitHubRelease[]): GitHubRelease | null {
-  return (
-    releases.find((release) => !release.draft && !release.prerelease) ??
-    releases.find((release) => !release.draft) ??
-    null
-  );
+  return releases.find((release) => !release.draft && !release.prerelease) ?? null;
 }
 
 function extractSectionBullets(body: string | null, sectionHeading: string): string[] {
