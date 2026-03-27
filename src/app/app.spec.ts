@@ -189,4 +189,48 @@ describe('App', () => {
     expect(primaryAction.getAttribute('href')).toBe('http://downloads.veldmuislinux.org');
     expect(compiled.textContent).toContain('Stable release line');
   });
+
+  it('should fall back to the hosted site download when a stable release has no valid ISO URL', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
+      ok: true,
+      json: async () => [
+        {
+          html_url: 'https://github.com/ruannnebornman/veldmuis/releases/tag/v1.4.1',
+          tag_name: 'v1.4.1',
+          name: 'Veldmuis v1.4.1',
+          draft: false,
+          prerelease: false,
+          published_at: '2026-03-27T07:10:00Z',
+          assets: [
+            {
+              name: 'veldmuis-2026.03.27-x86_64.iso.sha256',
+              size: 97,
+              browser_download_url:
+                'https://github.com/ruannnebornman/veldmuis/releases/download/v1.4.1/veldmuis-2026.03.27-x86_64.iso.sha256',
+            },
+            {
+              name: 'veldmuis-2026.03.27-x86_64.manifest.txt',
+              size: 301,
+              browser_download_url:
+                'https://github.com/ruannnebornman/veldmuis/releases/download/v1.4.1/veldmuis-2026.03.27-x86_64.manifest.txt',
+            },
+          ],
+          body:
+            '# Highlights\n\n- Stable hosted release.\n\n## Downloads\n\nISO download: /latest.iso\nChecksum asset: `veldmuis-2026.03.27-x86_64.iso.sha256`\n',
+        },
+      ],
+    } as Response);
+
+    const fixture = TestBed.createComponent(App);
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const primaryAction = compiled.querySelector('.release-actions .button-primary') as HTMLAnchorElement;
+
+    expect(compiled.querySelector('.release-heading h2')?.textContent).toContain('v1.4.1');
+    expect(primaryAction.getAttribute('href')).toBe('http://downloads.veldmuislinux.org');
+    expect(primaryAction.textContent).toContain('Download ISO');
+    expect(compiled.textContent).toContain('veldmuis-2026.03.27-x86_64.manifest.txt');
+  });
 });

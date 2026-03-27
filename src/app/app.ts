@@ -262,16 +262,23 @@ function buildReleaseActions(
   release: GitHubRelease,
   fallbackHero: typeof siteContent.hero
 ): { primary: ReleaseAction; secondary: ReleaseAction } {
-  const primaryDownloadTarget = pickPrimaryDownloadTarget(release);
+  const externalIsoUrl = extractExternalIsoUrl(release.body);
+  const isoAsset = release.assets.find((asset) => /\.iso$/i.test(asset.name));
 
   return {
-    primary: primaryDownloadTarget
+    primary: externalIsoUrl
       ? {
-          label: primaryDownloadTarget.label,
-          href: primaryDownloadTarget.href,
-          external: primaryDownloadTarget.external,
+          label: 'Download ISO',
+          href: externalIsoUrl,
+          external: true,
         }
-      : fallbackHero.primaryCta,
+      : isoAsset
+        ? {
+            label: 'Download ISO',
+            href: isoAsset.browser_download_url,
+            external: true,
+          }
+        : fallbackHero.primaryCta,
     secondary: {
       label: 'View Release',
       href: release.html_url || fallbackHero.secondaryCta.href,
