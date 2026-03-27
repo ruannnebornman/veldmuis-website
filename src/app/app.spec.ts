@@ -185,7 +185,7 @@ describe('App', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const primaryAction = compiled.querySelector('.release-actions .button-primary') as HTMLAnchorElement;
 
-    expect(compiled.querySelector('.release-heading h2')?.textContent).toContain('1.4.0');
+    expect(compiled.querySelector('.release-heading h2')?.textContent).toContain('1.0.0');
     expect(primaryAction.getAttribute('href')).toBe('http://downloads.veldmuislinux.org');
     expect(compiled.textContent).toContain('Stable release line');
   });

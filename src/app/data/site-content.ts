@@ -23,13 +23,13 @@ African veld at sunset.`,
     kicker: 'Current release',
     status: 'Stable release line',
     date: 'March 2026',
-    version: '1.4.0',
+    version: '1.0.0',
     summary:
       'Hosted ISO delivery, signed package publishing, and the website download path are now aligned for the next stable Veldmuis release.',
     points: [
       'Download button points at the current hosted ISO path',
       'Signed package repositories publish to packages.veldmuislinux.org',
-      'Next stable version is planned as 1.4.0',
+      'If you see 1.0.0 here, the site is showing its fallback release card',
     ],
     details: [
       { label: 'Architecture', value: 'x86_64' },
