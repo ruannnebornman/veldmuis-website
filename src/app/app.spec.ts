@@ -50,27 +50,45 @@ describe('App', () => {
     expect(compiled.querySelector('.footer-links')).toBeNull();
   });
 
-  it('should render the latest GitHub prerelease when available', async () => {
+  it('should prefer the latest stable GitHub release when one is available', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
       ok: true,
       json: async () => [
         {
-          html_url: 'https://github.com/ruannnebornman/veldmuis/releases/tag/0.1.0-alpha',
-          tag_name: '0.1.0-alpha',
-          name: 'Veldmuis Linux 0.1.0-alpha',
+          html_url: 'https://github.com/ruannnebornman/veldmuis/releases/tag/1.4.1-beta',
+          tag_name: '1.4.1-beta',
+          name: 'Veldmuis Linux 1.4.1-beta',
           draft: false,
           prerelease: true,
-          published_at: '2026-03-11T08:13:43Z',
+          published_at: '2026-04-02T08:13:43Z',
           assets: [
             {
-              name: 'veldmuis-2026.03.11-x86_64.iso',
+              name: 'veldmuis-2026.04.02-x86_64.iso',
               size: 1707145216,
               browser_download_url:
-                'https://github.com/ruannnebornman/veldmuis/releases/download/0.1.0-alpha/veldmuis-2026.03.11-x86_64.iso',
+                'https://github.com/ruannnebornman/veldmuis/releases/download/1.4.1-beta/veldmuis-2026.04.02-x86_64.iso',
             },
           ],
           body:
-            '# Veldmuis Linux 0.1.0-alpha\n\n## Highlights\n- First tagged technical alpha release.\n- Live ISO boots into a branded Veldmuis KDE Plasma session.\n- archinstall remains available as the primary install path.\n- Installed systems can sync against the hosted Veldmuis package repositories.\n',
+            '# Veldmuis Linux 1.4.1-beta\n\n## Highlights\n- Beta release.\n',
+        },
+        {
+          html_url: 'https://github.com/ruannnebornman/veldmuis/releases/tag/1.4.0',
+          tag_name: '1.4.0',
+          name: 'Veldmuis Linux 1.4.0',
+          draft: false,
+          prerelease: false,
+          published_at: '2026-04-01T08:13:43Z',
+          assets: [
+            {
+              name: 'veldmuis-2026.04.01-x86_64.iso.sha256',
+              size: 97,
+              browser_download_url:
+                'https://github.com/ruannnebornman/veldmuis/releases/download/1.4.0/veldmuis-2026.04.01-x86_64.iso.sha256',
+            },
+          ],
+          body:
+            '# Veldmuis Linux 1.4.0\n\n## Highlights\n- First stable hosted release.\n\n## Downloads\nISO download: http://downloads.veldmuislinux.org\nChecksum asset: `veldmuis-2026.04.01-x86_64.iso.sha256`\n',
         },
       ],
     } as Response);
@@ -86,14 +104,11 @@ describe('App', () => {
     expect(compiled.querySelector('.release-topline .eyebrow')?.textContent).toContain(
       'Latest GitHub release'
     );
-    expect(compiled.querySelector('.release-heading h2')?.textContent).toContain('0.1.0-alpha');
-    expect(compiled.querySelector('.release-summary')?.textContent).toContain(
-      'First tagged technical alpha release.'
-    );
-    expect(primaryAction.getAttribute('href')).toContain(
-      '/releases/download/0.1.0-alpha/veldmuis-2026.03.11-x86_64.iso'
-    );
-    expect(secondaryAction.getAttribute('href')).toContain('/releases/tag/0.1.0-alpha');
+    expect(compiled.querySelector('.release-heading h2')?.textContent).toContain('1.4.0');
+    expect(compiled.querySelector('.release-summary')?.textContent).toContain('First stable hosted release.');
+    expect(primaryAction.getAttribute('href')).toBe('http://downloads.veldmuislinux.org');
+    expect(secondaryAction.getAttribute('href')).toContain('/releases/tag/1.4.0');
+    expect(compiled.textContent).toContain('Stable');
   });
 
   it('should use an external ISO link from the release notes when no ISO asset is attached', async () => {
@@ -116,7 +131,7 @@ describe('App', () => {
             },
           ],
           body:
-            '# Veldmuis Linux 0.3.0-alpha\n\n## Highlights\n- Fresh bare-metal and VM installs now complete cleanly through Calamares.\n- First-boot `sudo pacman -Syu` works without manual keyring recovery.\n\n## Release Assets\n- ISO download: https://drive.proton.me/urls/5FVKQT4G40#swN1c0HA3YcJ\n- Checksum: `veldmuis-2026.03.19-x86_64.iso.sha256`\n',
+            '# Veldmuis Linux 0.3.0-alpha\n\n## Highlights\n- Fresh bare-metal and VM installs now complete cleanly through Calamares.\n- First-boot `sudo pacman -Syu` works without manual keyring recovery.\n\n## Downloads\nISO download: http://downloads.veldmuislinux.org\nChecksum asset: `veldmuis-2026.03.19-x86_64.iso.sha256`\n',
         },
       ],
     } as Response);
@@ -132,9 +147,7 @@ describe('App', () => {
     expect(compiled.querySelector('.release-summary')?.textContent).toContain(
       'Fresh bare-metal and VM installs now complete cleanly through Calamares.'
     );
-    expect(primaryAction.getAttribute('href')).toBe(
-      'https://drive.proton.me/urls/5FVKQT4G40#swN1c0HA3YcJ'
-    );
+    expect(primaryAction.getAttribute('href')).toBe('http://downloads.veldmuislinux.org');
     expect(compiled.textContent).toContain('External ISO link');
     expect(compiled.textContent).toContain('Hosted externally');
   });

@@ -50,7 +50,11 @@ interface ReleaseDownloadTarget {
 }
 
 function pickDisplayRelease(releases: GitHubRelease[]): GitHubRelease | null {
-  return releases.find((release) => !release.draft) ?? null;
+  return (
+    releases.find((release) => !release.draft && !release.prerelease) ??
+    releases.find((release) => !release.draft) ??
+    null
+  );
 }
 
 function extractSectionBullets(body: string | null, sectionHeading: string): string[] {
@@ -151,7 +155,7 @@ function inferReleaseStatus(release: GitHubRelease): string {
     return 'Release candidate';
   }
 
-  return release.prerelease ? 'Prerelease' : 'Published release';
+  return release.prerelease ? 'Prerelease' : 'Stable release';
 }
 
 function formatReleaseDate(dateValue: string | null, fallback: string): string {
