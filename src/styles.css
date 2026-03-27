@@ -217,6 +217,7 @@ select {
   display: inline-flex;
   align-items: center;
   min-height: 2rem;
+  max-width: 100%;
   padding: 0.3rem 0.8rem;
   border-radius: var(--radius-pill);
   border: 1px solid rgba(255, 208, 149, 0.16);
@@ -224,8 +225,11 @@ select {
   color: var(--color-sand);
   font-size: 0.82rem;
   font-weight: 700;
+  line-height: 1.25;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .badge-soft {

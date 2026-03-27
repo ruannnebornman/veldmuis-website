@@ -109,53 +109,72 @@
 }
 
 .release-card {
+  width: min(100%, 30rem);
   max-width: 30rem;
+  min-width: 0;
   margin-left: auto;
   display: grid;
   gap: 1.2rem;
   padding: 1.6rem;
+  overflow: hidden;
   background:
     linear-gradient(180deg, rgba(255, 238, 214, 0.05), transparent 28%),
     linear-gradient(180deg, rgba(48, 28, 28, 0.74), rgba(19, 11, 12, 0.84));
   backdrop-filter: blur(16px);
 }
 
+.release-card > * {
+  min-width: 0;
+}
+
 .release-topline {
   display: flex;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 1rem;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .release-topline .eyebrow {
+  flex: 1 1 14rem;
   line-height: 1.1;
+  min-width: 0;
 }
 
 .release-heading {
   display: flex;
-  align-items: end;
+  flex-wrap: wrap;
+  align-items: flex-end;
   justify-content: space-between;
   gap: 1rem;
 }
 
 .release-heading h2 {
   margin: 0;
+  min-width: 0;
   font-family: var(--font-display);
   font-size: clamp(2.1rem, 5vw, 3.1rem);
   line-height: 0.95;
   letter-spacing: -0.06em;
+  overflow-wrap: anywhere;
 }
 
 .release-date {
+  margin-left: auto;
   color: var(--color-text-muted);
   font-size: 0.9rem;
-  white-space: nowrap;
+  max-width: 100%;
+  text-align: right;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .release-summary {
   margin: 0;
   color: var(--color-text-soft);
   line-height: 1.75;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
 }
 
 .release-points {
@@ -171,6 +190,7 @@
   padding-left: 1rem;
   color: var(--color-text-soft);
   line-height: 1.6;
+  overflow-wrap: anywhere;
 }
 
 .release-points li::before {
@@ -208,6 +228,9 @@
   margin: 0;
   font-weight: 600;
   color: var(--color-text);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 @media (max-width: 720px) {
