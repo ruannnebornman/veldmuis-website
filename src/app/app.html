@@ -26,34 +26,34 @@
       </div>
 
       <aside class="surface-card release-card">
-        <div class="release-topline">
-          <p class="eyebrow">{{ releaseCard().kicker }}</p>
-          <span class="badge badge-soft">{{ releaseCard().status }}</span>
-        </div>
-
-        <div class="release-heading">
-          <h2>{{ releaseCard().version }}</h2>
+        <div class="release-header">
+          <p class="eyebrow release-kicker">{{ releaseCard().kicker }}</p>
+          <span class="eyebrow release-status">{{ releaseCard().status }}</span>
+          <h2 class="release-version">{{ releaseCard().version }}</h2>
           <span class="release-date">{{ releaseCard().date }}</span>
         </div>
 
-        <div class="release-scroll-region">
-          <p class="release-summary">{{ releaseCard().summary }}</p>
+        <div class="release-notes">
+          <p class="eyebrow release-notes-heading">Release notes</p>
 
-          <ul class="release-points">
-            @for (point of releaseCard().points; track point) {
-              <li>{{ point }}</li>
-            }
-          </ul>
-
-          <dl class="release-meta-grid">
-            @for (item of releaseCard().details; track item.label) {
-              <div>
-                <dt>{{ item.label }}</dt>
-                <dd>{{ item.value }}</dd>
-              </div>
-            }
-          </dl>
+          <div class="release-scroll-region">
+            <ul class="release-points">
+              <li class="release-point-summary">{{ releaseCard().summary }}</li>
+              @for (point of releaseCard().points; track point) {
+                <li>{{ point }}</li>
+              }
+            </ul>
+          </div>
         </div>
+
+        <dl class="release-meta-grid">
+          @for (item of releaseCard().details; track item.label) {
+            <div>
+              <dt>{{ item.label }}</dt>
+              <dd>{{ item.value }}</dd>
+            </div>
+          }
+        </dl>
 
         <div class="release-actions">
           <a

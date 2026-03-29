@@ -5,8 +5,8 @@ export const siteContent = {
     kicker: 'Arch-based. KDE Plasma. Signed.',
     description:
       `Veldmuis Linux is an Arch-based KDE Plasma distribution
-with signed package workflows,shaped around the 
-African veld at sunset.`,
+with signed package workflows,
+shaped around the African veld at sunset.`,
     primaryCta: {
       label: 'Download ISO',
       href: 'https://downloads.veldmuislinux.org/iso/latest.iso',
