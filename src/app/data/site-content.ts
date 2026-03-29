@@ -13,7 +13,7 @@ African veld at sunset.`,
       external: true,
     },
     secondaryCta: {
-      label: 'View on GitHub',
+      label: 'View Build',
       href: 'https://github.com/ruannnebornman/veldmuis',
       external: true,
     },

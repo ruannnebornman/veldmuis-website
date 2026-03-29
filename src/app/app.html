@@ -73,14 +73,24 @@
             {{ releaseActions().secondary.label }}
           </a>
         </div>
-        <a
-          class="release-link"
-          [href]="releaseActions().tertiary.href"
-          [attr.target]="releaseActions().tertiary.external ? '_blank' : null"
-          [attr.rel]="releaseActions().tertiary.external ? 'noreferrer noopener' : null"
-        >
-          {{ releaseActions().tertiary.label }}
-        </a>
+        <div class="release-links">
+          <a
+            class="release-link"
+            [href]="releaseActions().tertiary.href"
+            [attr.target]="releaseActions().tertiary.external ? '_blank' : null"
+            [attr.rel]="releaseActions().tertiary.external ? 'noreferrer noopener' : null"
+          >
+            {{ releaseActions().tertiary.label }}
+          </a>
+          <a
+            class="release-link"
+            [href]="releaseActions().quaternary.href"
+            [attr.target]="releaseActions().quaternary.external ? '_blank' : null"
+            [attr.rel]="releaseActions().quaternary.external ? 'noreferrer noopener' : null"
+          >
+            {{ releaseActions().quaternary.label }}
+          </a>
+        </div>
       </aside>
     </div>
   </section>

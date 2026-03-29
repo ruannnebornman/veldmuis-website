@@ -100,7 +100,8 @@ describe('App', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const primaryAction = compiled.querySelector('.release-actions .button-primary') as HTMLAnchorElement;
     const secondaryAction = compiled.querySelector('.release-actions .button-secondary') as HTMLAnchorElement;
-    const releaseLink = compiled.querySelector('.release-link') as HTMLAnchorElement;
+    const buildLink = compiled.querySelector('.release-links .release-link:first-child') as HTMLAnchorElement;
+    const releaseLink = compiled.querySelector('.release-links .release-link:last-child') as HTMLAnchorElement;
 
     expect(compiled.querySelector('.release-topline .eyebrow')?.textContent).toContain(
       'Latest GitHub release'
@@ -109,6 +110,8 @@ describe('App', () => {
     expect(compiled.querySelector('.release-summary')?.textContent).toContain('First stable hosted release.');
     expect(primaryAction.getAttribute('href')).toBe('https://downloads.veldmuislinux.org/iso/latest.iso');
     expect(secondaryAction.getAttribute('href')).toContain('.iso.sha256');
+    expect(buildLink.getAttribute('href')).toBe('https://github.com/ruannnebornman/veldmuis');
+    expect(buildLink.textContent).toContain('View Build');
     expect(releaseLink.getAttribute('href')).toContain('/releases/tag/2.0.0');
     expect(compiled.textContent).toContain('Stable');
   });

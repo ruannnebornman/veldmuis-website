@@ -45,6 +45,7 @@ interface ReleaseActions {
   primary: ReleaseAction;
   secondary: ReleaseAction;
   tertiary: ReleaseAction;
+  quaternary: ReleaseAction;
 }
 
 interface ReleaseDownloadTarget {
@@ -81,6 +82,10 @@ function isReleaseMetadataLine(line: string): boolean {
 
 function cleanReleaseText(text: string): string {
   return text.replace(/`([^`]+)`/g, '$1').replace(/\s+/g, ' ').trim();
+}
+
+function buildReleasesPageUrl(repoUrl: string): string {
+  return `${repoUrl.replace(/\/+$/, '')}/releases`;
 }
 
 function pickDisplayRelease(releases: GitHubRelease[]): GitHubRelease | null {
@@ -370,8 +375,13 @@ function buildReleaseActions(
     primary,
     secondary,
     tertiary: {
+      label: 'View Build',
+      href: fallbackHero.secondaryCta.href,
+      external: true,
+    },
+    quaternary: {
       label: 'View Release',
-      href: release.html_url || fallbackHero.secondaryCta.href,
+      href: release.html_url || buildReleasesPageUrl(fallbackHero.secondaryCta.href),
       external: true,
     },
   };
@@ -402,6 +412,11 @@ export class App {
             external: true,
           },
           tertiary: this.content.hero.secondaryCta,
+          quaternary: {
+            label: 'View Release',
+            href: buildReleasesPageUrl(this.content.hero.secondaryCta.href),
+            external: true,
+          },
         }
   );
 
