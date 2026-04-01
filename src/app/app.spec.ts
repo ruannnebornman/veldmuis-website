@@ -50,6 +50,33 @@ describe('App', () => {
     expect(compiled.querySelector('.footer-links')).toBeNull();
   });
 
+  it('should not render the release card until the release request settles', () => {
+    const pendingFetch = new Promise<Response>(() => {});
+
+    vi.spyOn(globalThis, 'fetch').mockReturnValueOnce(pendingFetch);
+
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('.release-card')).toBeNull();
+  });
+
+  it('should render a compact official-links note in the footer', async () => {
+    const fixture = TestBed.createComponent(App);
+    await fixture.whenStable();
+    const compiled = fixture.nativeElement as HTMLElement;
+
+    expect(compiled.textContent).toContain(
+      'Official Veldmuis links live on this website and GitHub only.'
+    );
+    expect(compiled.querySelector('.trust-section')).toBeNull();
+    expect(compiled.querySelector('.release-trust')).toBeNull();
+    expect(compiled.querySelector('.footer-note')?.textContent).toContain(
+      'Official Veldmuis links live on this website and GitHub only.'
+    );
+  });
+
   it('should prefer the latest stable GitHub release when one is available', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
       ok: true,

@@ -159,7 +159,6 @@
   min-width: 0;
   max-height: min(78svh, 42rem);
   margin-left: auto;
-  align-self: start;
   display: flex;
   flex-direction: column;
   gap: 1.2rem;
@@ -224,7 +223,7 @@
   margin: 0;
   min-width: 0;
   font-family: var(--font-display);
-  font-size: clamp(3.4rem, 8vw, 4.4rem);
+  font-size: clamp(2.8rem, 6.6vw, 3.6rem);
   line-height: 0.88;
   letter-spacing: -0.07em;
   text-shadow: 0 10px 24px rgba(8, 5, 5, 0.22);
@@ -358,6 +357,7 @@
 
   .release-card {
     max-height: min(72svh, 38rem);
+    transform: none;
   }
 
   .release-header {

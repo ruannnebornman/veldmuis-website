@@ -38,7 +38,16 @@ shaped around the African veld at sunset.`,
       { label: 'Package flow', value: 'signed local Veldmuis repos' },
     ],
   },
+  trust: {
+    text:
+      'Official Veldmuis links live on this website and GitHub only.',
+    link: {
+      label: 'Official GitHub',
+      href: 'https://github.com/ruannnebornman/veldmuis',
+    },
+  },
   footer: {
     copy: 'Veldmuis Linux. Crafted in the veld, built in the open.',
+    note: 'Official Veldmuis links live on this website and GitHub only.',
   },
 } as const;

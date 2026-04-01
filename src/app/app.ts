@@ -398,6 +398,8 @@ export class App {
   protected readonly content = siteContent;
   protected readonly currentYear = new Date().getFullYear();
   private readonly latestRelease = signal<GitHubRelease | null>(null);
+  private readonly isReleaseLoading = signal(true);
+  protected readonly showReleaseCard = computed(() => !this.isReleaseLoading());
   protected readonly releaseCard = computed(() =>
     this.latestRelease() ? buildReleaseCard(this.latestRelease()!, this.content.release) : this.content.release
   );
@@ -444,6 +446,8 @@ export class App {
       }
     } catch {
       // Fall back to the bundled release content if GitHub is unavailable.
+    } finally {
+      this.isReleaseLoading.set(false);
     }
   }
 }

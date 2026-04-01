@@ -84,8 +84,10 @@ app-root {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(22rem, 30rem);
   gap: clamp(2rem, 5vw, 6rem);
-  align-items: center;
+  align-items: end;
+  align-content: start;
   min-height: 0;
+  padding-top: clamp(2.75rem, 5vw, 4.5rem);
 }
 
 .hero-copy {
@@ -111,15 +113,26 @@ app-root {
 .site-footer {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: space-between;
   gap: 1rem;
   padding-block: 0 1.2rem;
-  color: var(--color-text-muted);
+  color: var(--color-text);
   font-size: 0.92rem;
 }
 
 .site-footer p {
   margin: 0;
+}
+
+.footer-copy {
+  flex: 1 1 auto;
+  color: var(--color-text);
+}
+
+.footer-note {
+  flex: 0 1 28rem;
+  color: var(--color-text);
+  text-align: center;
 }
 
 body {
@@ -283,7 +296,9 @@ select {
 
   .hero-layout {
     grid-template-columns: 1fr;
+    align-items: start;
     min-height: auto;
+    padding-top: 0;
   }
 
   .release-card {
@@ -314,7 +329,11 @@ select {
   .release-heading,
   .site-footer {
     flex-direction: column;
-    align-items: start;
+    align-items: stretch;
+  }
+
+  .footer-note {
+    text-align: center;
   }
 
   .release-meta-grid {
