@@ -223,11 +223,11 @@
   margin: 0;
   min-width: 0;
   font-family: var(--font-display);
-  font-size: clamp(2.8rem, 6.6vw, 3.6rem);
-  line-height: 0.88;
-  letter-spacing: -0.07em;
+  font-size: 2.95rem;
+  line-height: 0.94;
+  letter-spacing: 0;
   text-shadow: 0 10px 24px rgba(8, 5, 5, 0.22);
-  overflow-wrap: anywhere;
+  white-space: nowrap;
 }
 
 .release-date {
@@ -373,6 +373,10 @@
   .release-date {
     justify-self: start;
     text-align: left;
+  }
+
+  .release-version {
+    font-size: 2.55rem;
   }
 
   .release-links {
