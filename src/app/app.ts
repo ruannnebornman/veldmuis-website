@@ -407,7 +407,7 @@ export class App {
     globalThis.location?.hash === '#try-now' ? 'try-now' : 'home',
   );
   protected readonly activeWindow =
-    signal<(typeof siteContent.demo.windows)[number]['id']>('routes');
+    signal<(typeof siteContent.demo.windows)[number]['id']>('files');
   protected readonly launcherOpen = signal(false);
   protected readonly desktopTime = signal(this.formatDesktopTime());
   private readonly latestRelease = signal<GitHubRelease | null>(null);

@@ -4,6 +4,8 @@ import { App } from './app';
 
 describe('App', () => {
   beforeEach(async () => {
+    window.location.hash = '';
+
     vi.spyOn(globalThis, 'fetch').mockResolvedValue({
       ok: true,
       json: async () => [],
@@ -15,6 +17,7 @@ describe('App', () => {
   });
 
   afterEach(() => {
+    window.location.hash = '';
     vi.restoreAllMocks();
   });
 
@@ -61,12 +64,13 @@ describe('App', () => {
     const compiled = fixture.nativeElement as HTMLElement;
 
     expect(compiled.querySelector('.plasma-desktop')).not.toBeNull();
-    expect(compiled.querySelector('.launcher-button')?.textContent).toContain('Try Routemate');
-    expect(compiled.querySelector('.window-titlebar h1')?.textContent).toContain('Route planner');
-    expect(compiled.textContent).toContain('Plan a day across the veld.');
+    expect(compiled.querySelector('.launcher-button')?.textContent).toContain(
+      'Application Launcher',
+    );
+    expect(compiled.querySelector('.window-app-id strong')?.textContent).toContain('Dolphin');
+    expect(compiled.textContent).toContain('Browse Veldmuis like a KDE desktop.');
     expect(compiled.querySelector('.panel-home-link')?.getAttribute('href')).toBe('#home');
-
-    window.location.hash = '';
+    expect(compiled.textContent).not.toContain('Routemate');
   });
 
   it('should not render duplicate footer action links', async () => {

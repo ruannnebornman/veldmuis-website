@@ -1,21 +1,12 @@
 <a class="skip-link" href="#main-content">Skip to content</a>
 
 @if (isTryNowPage()) {
-  <main class="route-shell desktop-route" id="main-content" aria-labelledby="demo-title">
-    <section class="plasma-desktop" aria-label="Routemate desktop demo">
-      <div class="desktop-wallpaper" aria-hidden="true"></div>
-
-      <header class="desktop-topbar">
-        <a class="desktop-brand" href="#home" aria-label="Back to Veldmuis home">
-          <img src="assets/veldmuis-logo.png" alt="" />
-          <span>Veldmuis Routemate</span>
-        </a>
-        <div class="desktop-status" aria-label="Desktop status">
-          <span>Wi‑Fi</span>
-          <span>Battery 92%</span>
-          <span>{{ desktopTime() }}</span>
-        </div>
-      </header>
+  <main class="desktop-route" id="main-content" aria-labelledby="demo-title">
+    <section class="plasma-desktop" aria-label="Veldmuis KDE Plasma desktop preview">
+      <div class="desktop-wallpaper" aria-hidden="true">
+        <span class="wallpaper-orbit wallpaper-orbit-one"></span>
+        <span class="wallpaper-orbit wallpaper-orbit-two"></span>
+      </div>
 
       <nav class="desktop-icons" aria-label="Desktop shortcuts">
         @for (shortcut of content.demo.shortcuts; track shortcut.label) {
@@ -25,67 +16,75 @@
             [class.desktop-icon-active]="activeWindow() === shortcut.window"
             (click)="openWindow(shortcut.window)"
           >
-            <span aria-hidden="true">{{ shortcut.icon }}</span>
+            <span class="desktop-icon-glyph" aria-hidden="true">{{ shortcut.icon }}</span>
             <strong>{{ shortcut.label }}</strong>
           </button>
         }
       </nav>
 
-      <article
-        class="plasma-window routemate-window"
-        [attr.aria-label]="activeWindowContent().title"
-      >
+      <article class="plasma-window" [attr.aria-label]="activeWindowContent().title">
         <div class="window-titlebar">
-          <div class="window-controls" aria-hidden="true">
-            <span></span>
-            <span></span>
-            <span></span>
+          <div class="window-app-id">
+            <span aria-hidden="true">{{ activeWindowContent().icon }}</span>
+            <strong id="demo-title">{{ activeWindowContent().title }}</strong>
           </div>
-          <h1 id="demo-title">{{ activeWindowContent().title }}</h1>
-          <button type="button" class="window-action" (click)="cycleWindow()">Next view</button>
+          <div class="window-toolbar" aria-label="Window actions">
+            <button type="button" aria-label="Minimize">−</button>
+            <button type="button" aria-label="Maximize">□</button>
+            <button type="button" aria-label="Close">×</button>
+          </div>
         </div>
 
         <div class="window-body">
-          <div class="route-map" aria-label="Route preview map">
-            <span class="map-pin map-pin-start">Start</span>
-            <span class="map-pin map-pin-end">Stop</span>
-            <span class="route-line route-line-one"></span>
-            <span class="route-line route-line-two"></span>
-            <span class="route-node route-node-one"></span>
-            <span class="route-node route-node-two"></span>
-          </div>
+          <aside class="window-sidebar" aria-label="Places">
+            <span class="sidebar-heading">Places</span>
+            @for (shortcut of content.demo.shortcuts; track shortcut.label) {
+              <button
+                type="button"
+                [class.sidebar-active]="activeWindow() === shortcut.window"
+                (click)="openWindow(shortcut.window)"
+              >
+                <span aria-hidden="true">{{ shortcut.icon }}</span>
+                {{ shortcut.label }}
+              </button>
+            }
+          </aside>
 
-          <div class="route-panel">
-            <p class="eyebrow">{{ activeWindowContent().kicker }}</p>
-            <h2>{{ activeWindowContent().heading }}</h2>
+          <section class="window-preview" [attr.data-preview]="activeWindowContent().preview">
+            <div class="preview-header">
+              <p class="eyebrow">{{ activeWindowContent().kicker }}</p>
+              <button type="button" class="window-action" (click)="cycleWindow()">Next app</button>
+            </div>
+            <h1>{{ activeWindowContent().heading }}</h1>
             <p>{{ activeWindowContent().description }}</p>
-            <ul>
+
+            <div class="preview-content">
               @for (item of activeWindowContent().points; track item) {
-                <li>{{ item }}</li>
+                <span class="preview-item">{{ item }}</span>
               }
-            </ul>
-          </div>
+            </div>
+          </section>
         </div>
       </article>
 
-      <aside class="desktop-widget surface-card" aria-label="Trip status widget">
-        <span class="badge">Live preview</span>
+      <aside class="desktop-widget" aria-label="Desktop widget">
+        <span class="widget-label">KDE Plasma</span>
         <strong>{{ content.demo.widget.title }}</strong>
         <p>{{ content.demo.widget.copy }}</p>
       </aside>
 
-      <footer class="plasma-panel" aria-label="KDE style desktop panel">
+      <footer class="plasma-panel" aria-label="KDE Plasma bottom panel">
         <button
           type="button"
           class="launcher-button"
           (click)="toggleLauncher()"
           [attr.aria-expanded]="launcherOpen()"
         >
-          <span aria-hidden="true">◇</span>
-          Try Routemate
+          <img src="assets/veldmuis-logo.png" alt="" />
+          Application Launcher
         </button>
 
-        <div class="task-buttons" role="list" aria-label="Open windows">
+        <div class="task-buttons" role="list" aria-label="Open applications">
           @for (window of content.demo.windows; track window.id) {
             <button
               type="button"
@@ -93,23 +92,42 @@
               [class.task-button-active]="activeWindow() === window.id"
               (click)="openWindow(window.id)"
             >
-              {{ window.title }}
+              <span aria-hidden="true">{{ window.icon }}</span>
+              {{ window.appName }}
             </button>
           }
         </div>
 
-        <a class="panel-home-link" href="#home">Back to website</a>
+        <div class="system-tray" aria-label="System tray">
+          <span>⌃</span>
+          <span>🔊</span>
+          <span>📶</span>
+          <time>{{ desktopTime() }}</time>
+        </div>
+        <a class="panel-home-link" href="#home">Back</a>
       </footer>
 
       @if (launcherOpen()) {
-        <div class="application-launcher surface-card" aria-label="Application launcher">
-          <p class="eyebrow">Applications</p>
-          @for (window of content.demo.windows; track window.id) {
-            <button type="button" (click)="openFromLauncher(window.id)">
-              <span>{{ window.icon }}</span>
-              <span>{{ window.title }}</span>
-            </button>
-          }
+        <div class="application-launcher" aria-label="Application launcher">
+          <div class="launcher-header">
+            <img src="assets/veldmuis-logo.png" alt="" />
+            <div>
+              <strong>Veldmuis</strong>
+              <span>KDE Plasma preview</span>
+            </div>
+          </div>
+          <label class="launcher-search">
+            <span class="visually-hidden">Search applications</span>
+            <input value="Search applications" readonly />
+          </label>
+          <div class="launcher-grid">
+            @for (window of content.demo.windows; track window.id) {
+              <button type="button" (click)="openFromLauncher(window.id)">
+                <span>{{ window.icon }}</span>
+                <strong>{{ window.appName }}</strong>
+              </button>
+            }
+          </div>
         </div>
       }
     </section>
