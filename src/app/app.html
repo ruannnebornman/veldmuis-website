@@ -1,104 +1,224 @@
 <a class="skip-link" href="#main-content">Skip to content</a>
 
-<main class="site-shell" id="main-content">
-  <section class="hero">
-    <div class="brand brand-placeholder" aria-hidden="true">
-      <span class="brand-mark" aria-hidden="true">
-        <img class="brand-logo" src="assets/veldmuis-logo.png" alt="" />
-      </span>
-      <span class="brand-text">
-        <strong>{{ content.siteName }}</strong>
-        <span>{{ content.brandLine }}</span>
-      </span>
-    </div>
+@if (isTryNowPage()) {
+  <main class="route-shell desktop-route" id="main-content" aria-labelledby="demo-title">
+    <section class="plasma-desktop" aria-label="Routemate desktop demo">
+      <div class="desktop-wallpaper" aria-hidden="true"></div>
 
-    <div class="hero-layout">
-      <div class="hero-copy">
-        <p class="eyebrow">{{ content.hero.kicker }}</p>
-        <h1>{{ title() }}</h1>
-        <p class="hero-lead">{{ content.hero.description }}</p>
+      <header class="desktop-topbar">
+        <a class="desktop-brand" href="#home" aria-label="Back to Veldmuis home">
+          <img src="assets/veldmuis-logo.png" alt="" />
+          <span>Veldmuis Routemate</span>
+        </a>
+        <div class="desktop-status" aria-label="Desktop status">
+          <span>Wi‑Fi</span>
+          <span>Battery 92%</span>
+          <span>{{ desktopTime() }}</span>
+        </div>
+      </header>
 
-        <div class="hero-meta">
-          @for (item of content.hero.meta; track item) {
-            <span class="meta-pill">{{ item }}</span>
+      <nav class="desktop-icons" aria-label="Desktop shortcuts">
+        @for (shortcut of content.demo.shortcuts; track shortcut.label) {
+          <button
+            type="button"
+            class="desktop-icon"
+            [class.desktop-icon-active]="activeWindow() === shortcut.window"
+            (click)="openWindow(shortcut.window)"
+          >
+            <span aria-hidden="true">{{ shortcut.icon }}</span>
+            <strong>{{ shortcut.label }}</strong>
+          </button>
+        }
+      </nav>
+
+      <article
+        class="plasma-window routemate-window"
+        [attr.aria-label]="activeWindowContent().title"
+      >
+        <div class="window-titlebar">
+          <div class="window-controls" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <h1 id="demo-title">{{ activeWindowContent().title }}</h1>
+          <button type="button" class="window-action" (click)="cycleWindow()">Next view</button>
+        </div>
+
+        <div class="window-body">
+          <div class="route-map" aria-label="Route preview map">
+            <span class="map-pin map-pin-start">Start</span>
+            <span class="map-pin map-pin-end">Stop</span>
+            <span class="route-line route-line-one"></span>
+            <span class="route-line route-line-two"></span>
+            <span class="route-node route-node-one"></span>
+            <span class="route-node route-node-two"></span>
+          </div>
+
+          <div class="route-panel">
+            <p class="eyebrow">{{ activeWindowContent().kicker }}</p>
+            <h2>{{ activeWindowContent().heading }}</h2>
+            <p>{{ activeWindowContent().description }}</p>
+            <ul>
+              @for (item of activeWindowContent().points; track item) {
+                <li>{{ item }}</li>
+              }
+            </ul>
+          </div>
+        </div>
+      </article>
+
+      <aside class="desktop-widget surface-card" aria-label="Trip status widget">
+        <span class="badge">Live preview</span>
+        <strong>{{ content.demo.widget.title }}</strong>
+        <p>{{ content.demo.widget.copy }}</p>
+      </aside>
+
+      <footer class="plasma-panel" aria-label="KDE style desktop panel">
+        <button
+          type="button"
+          class="launcher-button"
+          (click)="toggleLauncher()"
+          [attr.aria-expanded]="launcherOpen()"
+        >
+          <span aria-hidden="true">◇</span>
+          Try Routemate
+        </button>
+
+        <div class="task-buttons" role="list" aria-label="Open windows">
+          @for (window of content.demo.windows; track window.id) {
+            <button
+              type="button"
+              role="listitem"
+              [class.task-button-active]="activeWindow() === window.id"
+              (click)="openWindow(window.id)"
+            >
+              {{ window.title }}
+            </button>
           }
         </div>
+
+        <a class="panel-home-link" href="#home">Back to website</a>
+      </footer>
+
+      @if (launcherOpen()) {
+        <div class="application-launcher surface-card" aria-label="Application launcher">
+          <p class="eyebrow">Applications</p>
+          @for (window of content.demo.windows; track window.id) {
+            <button type="button" (click)="openFromLauncher(window.id)">
+              <span>{{ window.icon }}</span>
+              <span>{{ window.title }}</span>
+            </button>
+          }
+        </div>
+      }
+    </section>
+  </main>
+} @else {
+  <main class="site-shell" id="main-content">
+    <section class="hero">
+      <div class="brand brand-placeholder" aria-hidden="true">
+        <span class="brand-mark" aria-hidden="true">
+          <img class="brand-logo" src="assets/veldmuis-logo.png" alt="" />
+        </span>
+        <span class="brand-text">
+          <strong>{{ content.siteName }}</strong>
+          <span>{{ content.brandLine }}</span>
+        </span>
       </div>
 
-      @if (showReleaseCard()) {
-        <aside class="surface-card release-card">
-          <div class="release-header">
-            <p class="eyebrow release-kicker">{{ releaseCard().kicker }}</p>
-            <span class="eyebrow release-status">{{ releaseCard().status }}</span>
-            <h2 class="release-version">{{ releaseCard().version }}</h2>
-            <span class="release-date">{{ releaseCard().date }}</span>
+      <div class="hero-layout">
+        <div class="hero-copy">
+          <p class="eyebrow">{{ content.hero.kicker }}</p>
+          <h1>{{ title() }}</h1>
+          <p class="hero-lead">{{ content.hero.description }}</p>
+
+          <div class="hero-actions" aria-label="Primary actions">
+            <a class="button button-primary" [href]="content.hero.tryNowCta.href">{{
+              content.hero.tryNowCta.label
+            }}</a>
           </div>
 
-          <div class="release-notes">
-            <p class="eyebrow release-notes-heading">Release notes</p>
-
-            <div class="release-scroll-region">
-              <ul class="release-points">
-                <li class="release-point-summary">{{ releaseCard().summary }}</li>
-                @for (point of releaseCard().points; track point) {
-                  <li>{{ point }}</li>
-                }
-              </ul>
-            </div>
-          </div>
-
-          <dl class="release-meta-grid">
-            @for (item of releaseCard().details; track item.label) {
-              <div>
-                <dt>{{ item.label }}</dt>
-                <dd>{{ item.value }}</dd>
-              </div>
+          <div class="hero-meta">
+            @for (item of content.hero.meta; track item) {
+              <span class="meta-pill">{{ item }}</span>
             }
-          </dl>
-
-          <div class="release-actions">
-            <a
-              class="button button-primary"
-              [href]="releaseActions().primary.href"
-              [attr.target]="releaseActions().primary.external ? '_blank' : null"
-              [attr.rel]="releaseActions().primary.external ? 'noreferrer noopener' : null"
-            >
-              {{ releaseActions().primary.label }}
-            </a>
-            <a
-              class="button button-secondary"
-              [href]="releaseActions().secondary.href"
-              [attr.target]="releaseActions().secondary.external ? '_blank' : null"
-              [attr.rel]="releaseActions().secondary.external ? 'noreferrer noopener' : null"
-            >
-              {{ releaseActions().secondary.label }}
-            </a>
           </div>
-          <div class="release-links">
-            <a
-              class="release-link"
-              [href]="releaseActions().tertiary.href"
-              [attr.target]="releaseActions().tertiary.external ? '_blank' : null"
-              [attr.rel]="releaseActions().tertiary.external ? 'noreferrer noopener' : null"
-            >
-              {{ releaseActions().tertiary.label }}
-            </a>
-            <a
-              class="release-link"
-              [href]="releaseActions().quaternary.href"
-              [attr.target]="releaseActions().quaternary.external ? '_blank' : null"
-              [attr.rel]="releaseActions().quaternary.external ? 'noreferrer noopener' : null"
-            >
-              {{ releaseActions().quaternary.label }}
-            </a>
-          </div>
-        </aside>
-      }
-    </div>
-  </section>
-</main>
+        </div>
 
-<footer class="site-footer">
-  <p class="footer-copy">{{ content.footer.copy }} {{ currentYear }}</p>
-  <p class="footer-note">{{ content.footer.note }}</p>
-</footer>
+        @if (showReleaseCard()) {
+          <aside class="surface-card release-card">
+            <div class="release-header">
+              <p class="eyebrow release-kicker">{{ releaseCard().kicker }}</p>
+              <span class="eyebrow release-status">{{ releaseCard().status }}</span>
+              <h2 class="release-version">{{ releaseCard().version }}</h2>
+              <span class="release-date">{{ releaseCard().date }}</span>
+            </div>
+
+            <div class="release-notes">
+              <p class="eyebrow release-notes-heading">Release notes</p>
+
+              <div class="release-scroll-region">
+                <ul class="release-points">
+                  <li class="release-point-summary">{{ releaseCard().summary }}</li>
+                  @for (point of releaseCard().points; track point) {
+                    <li>{{ point }}</li>
+                  }
+                </ul>
+              </div>
+            </div>
+
+            <dl class="release-meta-grid">
+              @for (item of releaseCard().details; track item.label) {
+                <div>
+                  <dt>{{ item.label }}</dt>
+                  <dd>{{ item.value }}</dd>
+                </div>
+              }
+            </dl>
+
+            <div class="release-actions">
+              <a
+                class="button button-primary"
+                [href]="releaseActions().primary.href"
+                [attr.target]="releaseActions().primary.external ? '_blank' : null"
+                [attr.rel]="releaseActions().primary.external ? 'noreferrer noopener' : null"
+              >
+                {{ releaseActions().primary.label }}
+              </a>
+              <a
+                class="button button-secondary"
+                [href]="releaseActions().secondary.href"
+                [attr.target]="releaseActions().secondary.external ? '_blank' : null"
+                [attr.rel]="releaseActions().secondary.external ? 'noreferrer noopener' : null"
+              >
+                {{ releaseActions().secondary.label }}
+              </a>
+            </div>
+            <div class="release-links">
+              <a
+                class="release-link"
+                [href]="releaseActions().tertiary.href"
+                [attr.target]="releaseActions().tertiary.external ? '_blank' : null"
+                [attr.rel]="releaseActions().tertiary.external ? 'noreferrer noopener' : null"
+                >{{ releaseActions().tertiary.label }}</a
+              >
+              <a
+                class="release-link"
+                [href]="releaseActions().quaternary.href"
+                [attr.target]="releaseActions().quaternary.external ? '_blank' : null"
+                [attr.rel]="releaseActions().quaternary.external ? 'noreferrer noopener' : null"
+                >{{ releaseActions().quaternary.label }}</a
+              >
+            </div>
+          </aside>
+        }
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p class="footer-copy">{{ content.footer.copy }} {{ currentYear }}</p>
+    <p class="footer-note">{{ content.footer.note }}</p>
+  </footer>
+}

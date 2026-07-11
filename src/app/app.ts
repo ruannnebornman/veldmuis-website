@@ -81,7 +81,10 @@ function isReleaseMetadataLine(line: string): boolean {
 }
 
 function cleanReleaseText(text: string): string {
-  return text.replace(/`([^`]+)`/g, '$1').replace(/\s+/g, ' ').trim();
+  return text
+    .replace(/`([^`]+)`/g, '$1')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 function buildReleasesPageUrl(repoUrl: string): string {
@@ -297,12 +300,15 @@ function pickPrimaryDownloadTarget(release: GitHubRelease): ReleaseDownloadTarge
 
 function buildReleaseCard(
   release: GitHubRelease,
-  fallbackRelease: typeof siteContent.release
+  fallbackRelease: typeof siteContent.release,
 ): ReleaseCardContent {
   const highlights = extractSectionBullets(release.body, 'Highlights');
   const allBullets = extractAllBullets(release.body);
   const summary = cleanReleaseText(
-    highlights[0] ?? allBullets[0] ?? extractFirstParagraph(release.body) ?? fallbackRelease.summary
+    highlights[0] ??
+      allBullets[0] ??
+      extractFirstParagraph(release.body) ??
+      fallbackRelease.summary,
   );
   const points = (highlights.length > 0 ? highlights.slice(1) : allBullets.slice(1))
     .filter((point) => point !== summary)
@@ -324,7 +330,7 @@ function buildReleaseCard(
 
 function buildReleaseActions(
   release: GitHubRelease,
-  fallbackHero: typeof siteContent.hero
+  fallbackHero: typeof siteContent.hero,
 ): ReleaseActions {
   const externalIsoUrl = extractExternalIsoUrl(release.body);
   const externalChecksumUrl = extractExternalChecksumUrl(release.body);
@@ -391,17 +397,26 @@ function buildReleaseActions(
   selector: 'app-root',
   imports: [],
   templateUrl: './app.html',
-  styleUrl: './app.css'
+  styleUrl: './app.css',
 })
 export class App {
   protected readonly title = signal(siteContent.siteName);
   protected readonly content = siteContent;
   protected readonly currentYear = new Date().getFullYear();
+  protected readonly currentRoute = signal(
+    globalThis.location?.hash === '#try-now' ? 'try-now' : 'home',
+  );
+  protected readonly activeWindow =
+    signal<(typeof siteContent.demo.windows)[number]['id']>('routes');
+  protected readonly launcherOpen = signal(false);
+  protected readonly desktopTime = signal(this.formatDesktopTime());
   private readonly latestRelease = signal<GitHubRelease | null>(null);
   private readonly isReleaseLoading = signal(true);
   protected readonly showReleaseCard = computed(() => !this.isReleaseLoading());
   protected readonly releaseCard = computed(() =>
-    this.latestRelease() ? buildReleaseCard(this.latestRelease()!, this.content.release) : this.content.release
+    this.latestRelease()
+      ? buildReleaseCard(this.latestRelease()!, this.content.release)
+      : this.content.release,
   );
   protected readonly releaseActions = computed(() =>
     this.latestRelease()
@@ -419,11 +434,50 @@ export class App {
             href: buildReleasesPageUrl(this.content.hero.secondaryCta.href),
             external: true,
           },
-        }
+        },
+  );
+
+  protected readonly isTryNowPage = computed(() => this.currentRoute() === 'try-now');
+  protected readonly activeWindowContent = computed(
+    () =>
+      this.content.demo.windows.find((window) => window.id === this.activeWindow()) ??
+      this.content.demo.windows[0],
   );
 
   constructor() {
+    globalThis.addEventListener?.('hashchange', () => this.syncRouteFromHash());
+    globalThis.setInterval?.(() => this.desktopTime.set(this.formatDesktopTime()), 30_000);
     void this.loadLatestRelease();
+  }
+
+  protected openWindow(windowId: (typeof siteContent.demo.windows)[number]['id']): void {
+    this.activeWindow.set(windowId);
+  }
+
+  protected openFromLauncher(windowId: (typeof siteContent.demo.windows)[number]['id']): void {
+    this.openWindow(windowId);
+    this.launcherOpen.set(false);
+  }
+
+  protected toggleLauncher(): void {
+    this.launcherOpen.update((isOpen) => !isOpen);
+  }
+
+  protected cycleWindow(): void {
+    const windows = this.content.demo.windows;
+    const currentIndex = windows.findIndex((window) => window.id === this.activeWindow());
+    const nextWindow = windows[(currentIndex + 1) % windows.length];
+    this.activeWindow.set(nextWindow.id);
+  }
+
+  private syncRouteFromHash(): void {
+    this.currentRoute.set(globalThis.location?.hash === '#try-now' ? 'try-now' : 'home');
+  }
+
+  private formatDesktopTime(): string {
+    return new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit' }).format(
+      new Date(),
+    );
   }
 
   private async loadLatestRelease(): Promise<void> {
