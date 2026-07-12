@@ -45,7 +45,7 @@ describe('App', () => {
     expect(compiled.querySelector('.brand')?.getAttribute('href')).toBeNull();
   });
 
-  it('should link the hero try now button to the Routemate desktop demo', async () => {
+  it('should link the hero try now button to the desktop preview', async () => {
     const fixture = TestBed.createComponent(App);
     await fixture.whenStable();
     const compiled = fixture.nativeElement as HTMLElement;
@@ -55,7 +55,7 @@ describe('App', () => {
     expect(tryNowLink?.getAttribute('href')).toBe('#try-now');
   });
 
-  it('should render the KDE-style Routemate demo when the try now route is active', async () => {
+  it('should render the Veldmuis Plasma desktop when the try now route is active', async () => {
     window.location.hash = '#try-now';
 
     const fixture = TestBed.createComponent(App);
@@ -64,13 +64,64 @@ describe('App', () => {
     const compiled = fixture.nativeElement as HTMLElement;
 
     expect(compiled.querySelector('.plasma-desktop')).not.toBeNull();
-    expect(compiled.querySelector('.launcher-button')?.textContent).toContain(
+    expect(compiled.querySelector('.launcher-button')?.getAttribute('aria-label')).toBe(
       'Application Launcher',
     );
+    expect(compiled.querySelector<HTMLImageElement>('.launcher-button img')?.src).toContain(
+      'start-here-kde.svg',
+    );
     expect(compiled.querySelector('.window-app-id strong')?.textContent).toContain('Dolphin');
-    expect(compiled.textContent).toContain('Browse Veldmuis like a KDE desktop.');
-    expect(compiled.querySelector('.panel-home-link')?.getAttribute('href')).toBe('#home');
+    expect(compiled.textContent).toContain('5 Folders');
+    expect(compiled.querySelector<HTMLImageElement>('.folder-item img')?.src).toContain(
+      'folder-documents.svg',
+    );
+    expect(compiled.querySelector('.desktop-back-button')?.getAttribute('href')).toBe('#home');
+    expect(compiled.querySelector('.desktop-back-button')?.textContent).toContain(
+      'Back to website',
+    );
+    expect(compiled.textContent).not.toContain('Discover');
     expect(compiled.textContent).not.toContain('Routemate');
+  });
+
+  it('should open apps from Kickoff and support the window controls', async () => {
+    window.location.hash = '#try-now';
+
+    const fixture = TestBed.createComponent(App);
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+
+    compiled.querySelector<HTMLButtonElement>('.launcher-button')?.click();
+    fixture.detectChanges();
+
+    expect(compiled.querySelector('.application-launcher')).not.toBeNull();
+
+    const konsoleButton = Array.from(
+      compiled.querySelectorAll<HTMLButtonElement>('.launcher-app'),
+    ).find((button) => button.textContent?.includes('Konsole'));
+    konsoleButton?.click();
+    fixture.detectChanges();
+
+    expect(compiled.querySelector('.window-app-id strong')?.textContent).toContain('Konsole');
+    expect(compiled.textContent).toContain('KDE Plasma 6.7.2');
+
+    compiled
+      .querySelector<HTMLButtonElement>('.window-toolbar button[aria-label="Maximize"]')
+      ?.click();
+    fixture.detectChanges();
+    expect(compiled.querySelector('.plasma-window-maximized')).not.toBeNull();
+
+    compiled
+      .querySelector<HTMLButtonElement>('.window-toolbar button[aria-label="Minimize"]')
+      ?.click();
+    fixture.detectChanges();
+    expect(compiled.querySelector('.plasma-window')).toBeNull();
+
+    compiled
+      .querySelector<HTMLButtonElement>('.task-buttons button[aria-label="Konsole"]')
+      ?.click();
+    fixture.detectChanges();
+    expect(compiled.querySelector('.window-app-id strong')?.textContent).toContain('Konsole');
   });
 
   it('should not render duplicate footer action links', async () => {

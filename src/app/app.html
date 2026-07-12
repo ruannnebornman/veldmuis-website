@@ -1,135 +1,400 @@
 <a class="skip-link" href="#main-content">Skip to content</a>
 
 @if (isTryNowPage()) {
-  <main class="desktop-route" id="main-content" aria-labelledby="demo-title">
-    <section class="plasma-desktop" aria-label="Veldmuis KDE Plasma desktop preview">
-      <div class="desktop-wallpaper" aria-hidden="true">
-        <span class="wallpaper-orbit wallpaper-orbit-one"></span>
-        <span class="wallpaper-orbit wallpaper-orbit-two"></span>
-      </div>
+  <main
+    class="desktop-route"
+    id="main-content"
+    aria-label="Interactive Veldmuis KDE Plasma desktop preview"
+  >
+    <section class="plasma-desktop" aria-label="Veldmuis KDE Plasma desktop">
+      <div class="desktop-wallpaper" aria-hidden="true"></div>
+      <a class="desktop-back-button" href="#home">
+        <span aria-hidden="true">←</span>
+        <strong>Back to website</strong>
+      </a>
 
-      <nav class="desktop-icons" aria-label="Desktop shortcuts">
-        @for (shortcut of content.demo.shortcuts; track shortcut.label) {
-          <button
-            type="button"
-            class="desktop-icon"
-            [class.desktop-icon-active]="activeWindow() === shortcut.window"
-            (click)="openWindow(shortcut.window)"
+      @if (windowOpen()) {
+        <article
+          class="plasma-window"
+          [class.plasma-window-maximized]="windowMaximized()"
+          [class.window-dragging]="windowDragging()"
+          [style.--window-x]="windowPosition().x + 'px'"
+          [style.--window-y]="windowPosition().y + 'px'"
+          [attr.aria-label]="activeWindowContent().title"
+        >
+          <header
+            class="window-titlebar"
+            (dblclick)="toggleMaximize()"
+            (pointerdown)="startWindowDrag($event)"
+            (pointermove)="moveWindow($event)"
+            (pointerup)="endWindowDrag($event)"
+            (pointercancel)="endWindowDrag($event)"
           >
-            <span class="desktop-icon-glyph" aria-hidden="true">{{ shortcut.icon }}</span>
-            <strong>{{ shortcut.label }}</strong>
-          </button>
-        }
-      </nav>
-
-      <article class="plasma-window" [attr.aria-label]="activeWindowContent().title">
-        <div class="window-titlebar">
-          <div class="window-app-id">
-            <span aria-hidden="true">{{ activeWindowContent().icon }}</span>
-            <strong id="demo-title">{{ activeWindowContent().title }}</strong>
-          </div>
-          <div class="window-toolbar" aria-label="Window actions">
-            <button type="button" aria-label="Minimize">−</button>
-            <button type="button" aria-label="Maximize">□</button>
-            <button type="button" aria-label="Close">×</button>
-          </div>
-        </div>
-
-        <div class="window-body">
-          <aside class="window-sidebar" aria-label="Places">
-            <span class="sidebar-heading">Places</span>
-            @for (shortcut of content.demo.shortcuts; track shortcut.label) {
+            <div class="window-app-id">
+              <img [src]="activeWindowContent().icon" alt="" />
+              <strong id="demo-title">{{ activeWindowContent().title }}</strong>
+            </div>
+            <div class="window-toolbar" aria-label="Window actions">
               <button
                 type="button"
-                [class.sidebar-active]="activeWindow() === shortcut.window"
-                (click)="openWindow(shortcut.window)"
+                aria-label="Minimize"
+                title="Minimize"
+                (click)="minimizeWindow()"
               >
-                <span aria-hidden="true">{{ shortcut.icon }}</span>
-                {{ shortcut.label }}
+                <span class="window-control-minimize" aria-hidden="true"></span>
               </button>
-            }
-          </aside>
-
-          <section class="window-preview" [attr.data-preview]="activeWindowContent().preview">
-            <div class="preview-header">
-              <p class="eyebrow">{{ activeWindowContent().kicker }}</p>
-              <button type="button" class="window-action" (click)="cycleWindow()">Next app</button>
+              <button
+                type="button"
+                [attr.aria-label]="windowMaximized() ? 'Restore' : 'Maximize'"
+                [attr.title]="windowMaximized() ? 'Restore' : 'Maximize'"
+                (click)="toggleMaximize()"
+              >
+                <span class="window-control-maximize" aria-hidden="true"></span>
+              </button>
+              <button type="button" aria-label="Close" title="Close" (click)="closeWindow()">
+                <span class="window-control-close" aria-hidden="true"></span>
+              </button>
             </div>
-            <h1>{{ activeWindowContent().heading }}</h1>
-            <p>{{ activeWindowContent().description }}</p>
+          </header>
 
-            <div class="preview-content">
-              @for (item of activeWindowContent().points; track item) {
-                <span class="preview-item">{{ item }}</span>
+          <div class="window-body">
+            @switch (activeWindow()) {
+              @case ('browser') {
+                <section class="kde-app firefox-app" aria-label="Firefox">
+                  <div class="firefox-tabs">
+                    <div class="firefox-tab firefox-tab-active">
+                      <img src="assets/kde/firefox.svg" alt="" />
+                      <span>Veldmuis Linux</span>
+                      <span aria-hidden="true">×</span>
+                    </div>
+                    <button type="button" aria-label="New tab" title="New tab">+</button>
+                  </div>
+                  <div class="firefox-toolbar">
+                    <div class="browser-nav" aria-hidden="true">
+                      <span>←</span>
+                      <span>→</span>
+                      <span>↻</span>
+                    </div>
+                    <div class="browser-address">
+                      <span class="address-lock" aria-hidden="true"></span>
+                      <span>veldmuislinux.org</span>
+                    </div>
+                    <span class="browser-menu" aria-hidden="true">≡</span>
+                  </div>
+                  <div class="browser-page">
+                    <div class="browser-page-brand">
+                      <img src="assets/veldmuis-logo.png" alt="" />
+                      <span>Veldmuis Linux</span>
+                    </div>
+                    <div class="browser-page-copy">
+                      <span>Arch-based. KDE Plasma. Signed.</span>
+                      <h1>Veldmuis</h1>
+                      <p>Crafted in the veld, built in the open.</p>
+                    </div>
+                  </div>
+                </section>
+              }
+
+              @case ('files') {
+                <section class="kde-app dolphin-app" aria-label="Dolphin file manager">
+                  <div class="kde-menubar" aria-hidden="true">
+                    <span>File</span><span>Edit</span><span>View</span><span>Go</span
+                    ><span>Tools</span><span>Settings</span><span>Help</span>
+                  </div>
+                  <div class="dolphin-toolbar">
+                    <div class="dolphin-nav" aria-hidden="true">
+                      <span>←</span><span>→</span><span>↑</span>
+                    </div>
+                    <div class="dolphin-path">
+                      <img src="assets/kde/folder-home.svg" alt="" />
+                      <span>Home</span>
+                    </div>
+                    <span class="dolphin-search" aria-hidden="true"></span>
+                  </div>
+                  <div class="dolphin-layout">
+                    <aside class="dolphin-sidebar" aria-label="Places">
+                      <strong>Places</strong>
+                      <span class="dolphin-place dolphin-place-active">
+                        <img src="assets/kde/folder-home.svg" alt="" />Home
+                      </span>
+                      <span class="dolphin-place">
+                        <img src="assets/kde/folder-documents.svg" alt="" />Documents
+                      </span>
+                      <span class="dolphin-place">
+                        <img src="assets/kde/folder-download.svg" alt="" />Downloads
+                      </span>
+                      <span class="dolphin-place">
+                        <img src="assets/kde/folder-pictures.svg" alt="" />Pictures
+                      </span>
+                      <strong class="dolphin-section-label">Remote</strong>
+                      <span class="dolphin-place dolphin-network-place">
+                        <span aria-hidden="true">◇</span>Network
+                      </span>
+                    </aside>
+                    <div class="dolphin-view">
+                      <div class="dolphin-view-heading">
+                        <strong>Home</strong>
+                        <span>Folders</span>
+                      </div>
+                      <div class="folder-grid" role="list" aria-label="Home folders">
+                        <div class="folder-item" role="listitem">
+                          <img src="assets/kde/folder-documents.svg" alt="" /><span>Documents</span>
+                        </div>
+                        <div class="folder-item" role="listitem">
+                          <img src="assets/kde/folder-download.svg" alt="" /><span>Downloads</span>
+                        </div>
+                        <div class="folder-item" role="listitem">
+                          <img src="assets/kde/folder-pictures.svg" alt="" /><span>Pictures</span>
+                        </div>
+                        <div class="folder-item" role="listitem">
+                          <img src="assets/kde/folder-public.svg" alt="" /><span>Public</span>
+                        </div>
+                        <div class="folder-item" role="listitem">
+                          <img src="assets/kde/folder-videos.svg" alt="" /><span>Videos</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <footer class="dolphin-status">
+                    <span>5 Folders</span><span>22.4 GiB free</span>
+                  </footer>
+                </section>
+              }
+
+              @case ('terminal') {
+                <section class="kde-app konsole-app" aria-label="Konsole terminal">
+                  <div class="kde-menubar" aria-hidden="true">
+                    <span>File</span><span>Edit</span><span>View</span><span>Bookmarks</span
+                    ><span>Plugins</span><span>Settings</span><span>Help</span>
+                  </div>
+                  <div class="konsole-tabs">
+                    <div class="konsole-tab">
+                      <img src="assets/kde/konsole.svg" alt="" />
+                      <span>Shell</span>
+                    </div>
+                    <span aria-hidden="true">+</span>
+                  </div>
+                  <div class="terminal-screen">
+                    <p>
+                      <span class="terminal-user">veldmuis&#64;veldmuis</span>:<span
+                        class="terminal-path"
+                        >~</span
+                      >$ fastfetch
+                    </p>
+                    <div class="fastfetch-output">
+                      <img src="assets/veldmuis-logo.png" alt="" />
+                      <dl>
+                        <div>
+                          <dt>OS</dt>
+                          <dd>Veldmuis Linux x86_64</dd>
+                        </div>
+                        <div>
+                          <dt>Kernel</dt>
+                          <dd>Linux 6.17.9-arch1-1</dd>
+                        </div>
+                        <div>
+                          <dt>DE</dt>
+                          <dd>KDE Plasma 6.7.2</dd>
+                        </div>
+                        <div>
+                          <dt>WM</dt>
+                          <dd>KWin (Wayland)</dd>
+                        </div>
+                        <div>
+                          <dt>Theme</dt>
+                          <dd>Breeze Dark</dd>
+                        </div>
+                        <div>
+                          <dt>Packages</dt>
+                          <dd>pacman</dd>
+                        </div>
+                      </dl>
+                    </div>
+                    <p>
+                      <span class="terminal-user">veldmuis&#64;veldmuis</span>:<span
+                        class="terminal-path"
+                        >~</span
+                      >$ <span class="terminal-cursor" aria-hidden="true"></span>
+                    </p>
+                  </div>
+                </section>
+              }
+
+              @case ('settings') {
+                <section class="kde-app settings-app" aria-label="System Settings">
+                  <aside class="settings-sidebar">
+                    <label class="settings-search">
+                      <span class="visually-hidden">Search settings</span>
+                      <input type="search" placeholder="Search..." />
+                    </label>
+                    <nav aria-label="Settings categories">
+                      <span>Wi-Fi &amp; Networking</span>
+                      <span>Bluetooth</span>
+                      <span class="settings-category-active">Appearance &amp; Style</span>
+                      <span>Apps &amp; Windows</span>
+                      <span>Security &amp; Privacy</span>
+                      <span>System</span>
+                    </nav>
+                  </aside>
+                  <div class="settings-content">
+                    <div class="settings-heading">
+                      <div>
+                        <span>Appearance &amp; Style</span>
+                        <h1>Colors &amp; Themes</h1>
+                      </div>
+                      <img src="assets/kde/system-settings.svg" alt="" />
+                    </div>
+                    <section class="theme-section" aria-labelledby="global-theme-title">
+                      <h2 id="global-theme-title">Global Theme</h2>
+                      <div class="theme-grid">
+                        <div class="theme-card theme-card-selected">
+                          <div class="theme-preview theme-preview-veldmuis"></div>
+                          <div><strong>Veldmuis</strong><span>Breeze Dark</span></div>
+                          <span class="theme-check" aria-label="Selected">✓</span>
+                        </div>
+                        <div class="theme-card">
+                          <div class="theme-preview theme-preview-breeze"></div>
+                          <div><strong>Breeze Dark</strong><span>KDE Plasma</span></div>
+                        </div>
+                      </div>
+                    </section>
+                    <div class="appearance-details">
+                      <div><span>Application Style</span><strong>Breeze</strong></div>
+                      <div><span>Plasma Style</span><strong>Default</strong></div>
+                      <div><span>Colors</span><strong>Veldmuis Amber</strong></div>
+                      <div><span>Icons</span><strong>Breeze Dark</strong></div>
+                      <div><span>Cursors</span><strong>Breeze</strong></div>
+                      <div><span>Window Decorations</span><strong>Breeze</strong></div>
+                    </div>
+                  </div>
+                </section>
+              }
+            }
+          </div>
+        </article>
+      }
+
+      @if (launcherOpen()) {
+        <button
+          type="button"
+          class="launcher-scrim"
+          aria-label="Close application launcher"
+          (click)="closeLauncher()"
+        ></button>
+        <section class="application-launcher" aria-label="Application Launcher">
+          <header class="launcher-header">
+            <div class="launcher-user">
+              <img src="assets/veldmuis-logo.png" alt="" />
+              <strong>Veldmuis</strong>
+            </div>
+            <label class="launcher-search">
+              <span class="visually-hidden">Search applications</span>
+              <input
+                type="search"
+                placeholder="Search..."
+                [value]="launcherQuery()"
+                (input)="updateLauncherQuery($event)"
+              />
+            </label>
+          </header>
+          <div class="launcher-body">
+            <nav class="launcher-categories" aria-label="Application categories">
+              <span class="launcher-category launcher-category-active">Favorites</span>
+              <span class="launcher-category">All Applications</span>
+              <span class="launcher-separator"></span>
+              <span class="launcher-category"
+                ><img src="assets/kde/category-development.svg" alt="" />Development</span
+              >
+              <span class="launcher-category"
+                ><img src="assets/kde/category-games.svg" alt="" />Games</span
+              >
+              <span class="launcher-category"
+                ><img src="assets/kde/category-graphics.svg" alt="" />Graphics</span
+              >
+              <span class="launcher-category"
+                ><img src="assets/kde/category-internet.svg" alt="" />Internet</span
+              >
+              <span class="launcher-category"
+                ><img src="assets/kde/category-multimedia.svg" alt="" />Multimedia</span
+              >
+              <span class="launcher-category"
+                ><img src="assets/kde/category-office.svg" alt="" />Office</span
+              >
+              <span class="launcher-category"
+                ><img src="assets/kde/category-system.svg" alt="" />System</span
+              >
+              <span class="launcher-category"
+                ><img src="assets/kde/category-utilities.svg" alt="" />Utilities</span
+              >
+            </nav>
+            <div class="launcher-apps" aria-live="polite">
+              @for (window of filteredLauncherWindows(); track window.id) {
+                <button type="button" class="launcher-app" (click)="openFromLauncher(window.id)">
+                  <img [src]="window.icon" alt="" />
+                  <span
+                    ><strong>{{ window.appName }}</strong
+                    ><small>{{ window.description }}</small></span
+                  >
+                </button>
+              } @empty {
+                <p class="launcher-empty">No applications found.</p>
               }
             </div>
-          </section>
-        </div>
-      </article>
-
-      <aside class="desktop-widget" aria-label="Desktop widget">
-        <span class="widget-label">KDE Plasma</span>
-        <strong>{{ content.demo.widget.title }}</strong>
-        <p>{{ content.demo.widget.copy }}</p>
-      </aside>
+          </div>
+          <footer class="launcher-footer">
+            <div class="launcher-footer-tabs">
+              <span class="launcher-footer-active">Applications</span><span>Places</span>
+            </div>
+            <div class="launcher-power" aria-label="Session actions">
+              <img src="assets/kde/system-suspend.svg" alt="Sleep" title="Sleep" />
+              <img src="assets/kde/system-hibernate.svg" alt="Hibernate" title="Hibernate" />
+              <img src="assets/kde/system-reboot.svg" alt="Restart" title="Restart" />
+              <img src="assets/kde/system-shutdown.svg" alt="Shut Down" title="Shut Down" />
+            </div>
+          </footer>
+        </section>
+      }
 
       <footer class="plasma-panel" aria-label="KDE Plasma bottom panel">
         <button
           type="button"
           class="launcher-button"
+          title="Application Launcher"
+          aria-label="Application Launcher"
           (click)="toggleLauncher()"
           [attr.aria-expanded]="launcherOpen()"
         >
-          <img src="assets/veldmuis-logo.png" alt="" />
-          Application Launcher
+          <img src="assets/kde/start-here-kde.svg" alt="" />
         </button>
 
-        <div class="task-buttons" role="list" aria-label="Open applications">
+        <div class="task-buttons" role="list" aria-label="Applications">
           @for (window of content.demo.windows; track window.id) {
             <button
               type="button"
               role="listitem"
-              [class.task-button-active]="activeWindow() === window.id"
-              (click)="openWindow(window.id)"
+              [class.task-button-active]="activeWindow() === window.id && windowOpen()"
+              [attr.aria-pressed]="activeWindow() === window.id && windowOpen()"
+              [attr.aria-label]="window.appName"
+              [attr.title]="window.appName"
+              (click)="activateTask(window.id)"
             >
-              <span aria-hidden="true">{{ window.icon }}</span>
-              {{ window.appName }}
+              <img [src]="window.icon" alt="" />
             </button>
           }
         </div>
 
+        <div class="panel-spacer"></div>
         <div class="system-tray" aria-label="System tray">
-          <span>⌃</span>
-          <span>🔊</span>
-          <span>📶</span>
+          <span class="tray-expand" title="Show hidden icons" aria-hidden="true">⌃</span>
+          <img src="assets/kde/notifications.svg" alt="Notifications" title="Notifications" />
+          <img src="assets/kde/audio-volume-high.svg" alt="Volume" title="Volume" />
+          <img src="assets/kde/network-wireless.svg" alt="Network" title="Network" />
+        </div>
+        <div class="panel-clock">
           <time>{{ desktopTime() }}</time>
+          <span>{{ desktopDate() }}</span>
         </div>
-        <a class="panel-home-link" href="#home">Back</a>
       </footer>
-
-      @if (launcherOpen()) {
-        <div class="application-launcher" aria-label="Application launcher">
-          <div class="launcher-header">
-            <img src="assets/veldmuis-logo.png" alt="" />
-            <div>
-              <strong>Veldmuis</strong>
-              <span>KDE Plasma preview</span>
-            </div>
-          </div>
-          <label class="launcher-search">
-            <span class="visually-hidden">Search applications</span>
-            <input value="Search applications" readonly />
-          </label>
-          <div class="launcher-grid">
-            @for (window of content.demo.windows; track window.id) {
-              <button type="button" (click)="openFromLauncher(window.id)">
-                <span>{{ window.icon }}</span>
-                <strong>{{ window.appName }}</strong>
-              </button>
-            }
-          </div>
-        </div>
-      }
     </section>
   </main>
 } @else {
@@ -151,16 +416,16 @@
           <h1>{{ title() }}</h1>
           <p class="hero-lead">{{ content.hero.description }}</p>
 
-          <div class="hero-actions" aria-label="Primary actions">
-            <a class="button button-primary" [href]="content.hero.tryNowCta.href">{{
-              content.hero.tryNowCta.label
-            }}</a>
-          </div>
-
           <div class="hero-meta">
             @for (item of content.hero.meta; track item) {
               <span class="meta-pill">{{ item }}</span>
             }
+          </div>
+
+          <div class="hero-actions" aria-label="Primary actions">
+            <a class="button button-primary" [href]="content.hero.tryNowCta.href">{{
+              content.hero.tryNowCta.label
+            }}</a>
           </div>
         </div>
 

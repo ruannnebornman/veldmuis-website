@@ -56,6 +56,18 @@ interface ReleaseDownloadTarget {
   assetSize: string;
 }
 
+interface WindowDragState {
+  pointerId: number;
+  pointerX: number;
+  pointerY: number;
+  windowX: number;
+  windowY: number;
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+}
+
 function isMarkdownHeading(line: string): boolean {
   return /^#{1,6}\s+/.test(line);
 }
@@ -397,7 +409,7 @@ function buildReleaseActions(
   selector: 'app-root',
   imports: [],
   templateUrl: './app.html',
-  styleUrl: './app.css',
+  styleUrls: ['./app.css', './desktop-preview.css'],
 })
 export class App {
   protected readonly title = signal(siteContent.siteName);
@@ -408,10 +420,17 @@ export class App {
   );
   protected readonly activeWindow =
     signal<(typeof siteContent.demo.windows)[number]['id']>('files');
+  protected readonly windowOpen = signal(true);
+  protected readonly windowMaximized = signal(false);
+  protected readonly windowPosition = signal({ x: 0, y: 0 });
+  protected readonly windowDragging = signal(false);
   protected readonly launcherOpen = signal(false);
+  protected readonly launcherQuery = signal('');
   protected readonly desktopTime = signal(this.formatDesktopTime());
+  protected readonly desktopDate = signal(this.formatDesktopDate());
   private readonly latestRelease = signal<GitHubRelease | null>(null);
   private readonly isReleaseLoading = signal(true);
+  private windowDragState: WindowDragState | null = null;
   protected readonly showReleaseCard = computed(() => !this.isReleaseLoading());
   protected readonly releaseCard = computed(() =>
     this.latestRelease()
@@ -443,15 +462,31 @@ export class App {
       this.content.demo.windows.find((window) => window.id === this.activeWindow()) ??
       this.content.demo.windows[0],
   );
+  protected readonly filteredLauncherWindows = computed(() => {
+    const query = this.launcherQuery().trim().toLowerCase();
+
+    if (!query) {
+      return this.content.demo.windows;
+    }
+
+    return this.content.demo.windows.filter((window) =>
+      `${window.appName} ${window.title}`.toLowerCase().includes(query),
+    );
+  });
 
   constructor() {
     globalThis.addEventListener?.('hashchange', () => this.syncRouteFromHash());
-    globalThis.setInterval?.(() => this.desktopTime.set(this.formatDesktopTime()), 30_000);
+    globalThis.setInterval?.(() => {
+      this.desktopTime.set(this.formatDesktopTime());
+      this.desktopDate.set(this.formatDesktopDate());
+    }, 30_000);
     void this.loadLatestRelease();
   }
 
   protected openWindow(windowId: (typeof siteContent.demo.windows)[number]['id']): void {
     this.activeWindow.set(windowId);
+    this.windowOpen.set(true);
+    this.windowMaximized.set(false);
   }
 
   protected openFromLauncher(windowId: (typeof siteContent.demo.windows)[number]['id']): void {
@@ -463,21 +498,130 @@ export class App {
     this.launcherOpen.update((isOpen) => !isOpen);
   }
 
-  protected cycleWindow(): void {
-    const windows = this.content.demo.windows;
-    const currentIndex = windows.findIndex((window) => window.id === this.activeWindow());
-    const nextWindow = windows[(currentIndex + 1) % windows.length];
-    this.activeWindow.set(nextWindow.id);
+  protected closeLauncher(): void {
+    this.launcherOpen.set(false);
+  }
+
+  protected activateTask(windowId: (typeof siteContent.demo.windows)[number]['id']): void {
+    if (this.activeWindow() === windowId && this.windowOpen()) {
+      this.windowOpen.set(false);
+      return;
+    }
+
+    this.openWindow(windowId);
+  }
+
+  protected minimizeWindow(): void {
+    this.windowOpen.set(false);
+  }
+
+  protected toggleMaximize(): void {
+    this.finishWindowDrag();
+    this.windowMaximized.update((isMaximized) => !isMaximized);
+  }
+
+  protected closeWindow(): void {
+    this.windowOpen.set(false);
+    this.windowMaximized.set(false);
+  }
+
+  protected updateLauncherQuery(event: Event): void {
+    this.launcherQuery.set((event.target as HTMLInputElement | null)?.value ?? '');
+  }
+
+  protected startWindowDrag(event: PointerEvent): void {
+    const target = event.target as HTMLElement | null;
+
+    if (event.button !== 0 || this.windowMaximized() || target?.closest('button')) {
+      return;
+    }
+
+    const titlebar = event.currentTarget as HTMLElement | null;
+    const windowElement = titlebar?.closest<HTMLElement>('.plasma-window');
+
+    if (!titlebar || !windowElement) {
+      return;
+    }
+
+    const bounds = windowElement.getBoundingClientRect();
+    const position = this.windowPosition();
+    this.windowDragState = {
+      pointerId: event.pointerId,
+      pointerX: event.clientX,
+      pointerY: event.clientY,
+      windowX: position.x,
+      windowY: position.y,
+      left: bounds.left,
+      top: bounds.top,
+      width: bounds.width,
+      height: bounds.height,
+    };
+    this.windowDragging.set(true);
+    titlebar.setPointerCapture?.(event.pointerId);
+    event.preventDefault();
+  }
+
+  protected moveWindow(event: PointerEvent): void {
+    const dragState = this.windowDragState;
+
+    if (!dragState || dragState.pointerId !== event.pointerId) {
+      return;
+    }
+
+    const viewportWidth = globalThis.innerWidth;
+    const viewportHeight = globalThis.innerHeight;
+    const deltaX = event.clientX - dragState.pointerX;
+    const deltaY = event.clientY - dragState.pointerY;
+    const minimumVisibleWidth = Math.min(120, dragState.width / 2);
+    const minimumLeft = minimumVisibleWidth - dragState.width;
+    const maximumLeft = viewportWidth - minimumVisibleWidth;
+    const maximumTop = Math.max(0, viewportHeight - 54 - dragState.height);
+    const nextLeft = Math.min(Math.max(dragState.left + deltaX, minimumLeft), maximumLeft);
+    const nextTop = Math.min(Math.max(dragState.top + deltaY, 0), maximumTop);
+
+    this.windowPosition.set({
+      x: dragState.windowX + nextLeft - dragState.left,
+      y: dragState.windowY + nextTop - dragState.top,
+    });
+  }
+
+  protected endWindowDrag(event: PointerEvent): void {
+    if (this.windowDragState?.pointerId !== event.pointerId) {
+      return;
+    }
+
+    (event.currentTarget as HTMLElement | null)?.releasePointerCapture?.(event.pointerId);
+    this.finishWindowDrag();
+  }
+
+  private finishWindowDrag(): void {
+    this.windowDragState = null;
+    this.windowDragging.set(false);
   }
 
   private syncRouteFromHash(): void {
-    this.currentRoute.set(globalThis.location?.hash === '#try-now' ? 'try-now' : 'home');
+    const route = globalThis.location?.hash === '#try-now' ? 'try-now' : 'home';
+    this.currentRoute.set(route);
+
+    if (route === 'home') {
+      this.launcherOpen.set(false);
+      this.finishWindowDrag();
+    }
   }
 
   private formatDesktopTime(): string {
-    return new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit' }).format(
-      new Date(),
-    );
+    return new Intl.DateTimeFormat('en-ZA', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    }).format(new Date());
+  }
+
+  private formatDesktopDate(): string {
+    const date = new Date();
+    const month = `${date.getMonth() + 1}`.padStart(2, '0');
+    const day = `${date.getDate()}`.padStart(2, '0');
+    return `${date.getFullYear()}/${month}/${day}`;
   }
 
   private async loadLatestRelease(): Promise<void> {

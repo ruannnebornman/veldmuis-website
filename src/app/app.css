@@ -400,6 +400,20 @@
   padding-top: 0.25rem;
 }
 
+.hero-actions .button {
+  flex: 1 1 100%;
+  justify-content: center;
+}
+
+.hero-actions .button-primary {
+  background: linear-gradient(
+    90deg,
+    var(--color-accent-bright) 0%,
+    var(--color-accent-gold) 48%,
+    var(--color-accent-copper) 115%
+  );
+}
+
 .route-shell {
   min-height: 100svh;
 }
