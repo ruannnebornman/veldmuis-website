@@ -2,6 +2,13 @@ import { Component, computed, signal } from '@angular/core';
 import { siteContent } from './data/site-content';
 
 const GITHUB_RELEASES_URL = 'https://api.github.com/repos/ruannnebornman/veldmuis/releases';
+const DOWNLOAD_BASE_URL = 'https://downloads.veldmuislinux.org/iso';
+const INSTALLER_CHANNEL_URLS = {
+  network: `${DOWNLOAD_BASE_URL}/channels/network.json`,
+  offline: `${DOWNLOAD_BASE_URL}/channels/offline.json`,
+} as const;
+
+type InstallerKind = keyof typeof INSTALLER_CHANNEL_URLS;
 
 interface GitHubReleaseAsset {
   name: string;
@@ -24,6 +31,27 @@ interface ReleaseDetail {
   label: string;
   value: string;
 }
+
+interface InstallerChannel {
+  schema_version: number;
+  channel: string;
+  installer: InstallerKind;
+  release_tag: string;
+  published_at: string;
+  iso: {
+    name: string;
+    url: string;
+    bytes: number;
+    sha256: string;
+    checksum_url: string;
+  };
+  manifest: {
+    url: string;
+    signature_url: string;
+  };
+}
+
+type InstallerChannels = Record<InstallerKind, InstallerChannel | null>;
 
 interface ReleaseCardContent {
   kicker: string;
@@ -78,10 +106,14 @@ function matchesSectionHeading(line: string, sectionHeading: string): boolean {
 }
 
 function isReleaseMetadataLine(line: string): boolean {
-  const normalized = line.trim().toLowerCase();
+  const normalized = line
+    .trim()
+    .replace(/^[-*]\s+/, '')
+    .toLowerCase();
 
   return (
     normalized.startsWith('iso download:') ||
+    normalized.startsWith('immutable iso:') ||
     normalized.startsWith('sha256 download:') ||
     normalized.startsWith('checksum asset:') ||
     normalized.startsWith('sha256:') ||
@@ -190,7 +222,7 @@ function extractExternalIsoUrl(body: string | null): string | null {
     return null;
   }
 
-  const match = body.match(/ISO download:\s*(https?:\/\/\S+)/i);
+  const match = body.match(/^(?:[-*]\s*)?(?:ISO download|Immutable ISO):\s*(https?:\/\/\S+)/im);
   return match?.[1] ?? null;
 }
 
@@ -272,6 +304,74 @@ function formatReleaseVersion(tag: string | null | undefined, fallback: string):
   return tag.replace(/^v(?=\d)/, '');
 }
 
+function isTrustedDownloadUrl(value: unknown, expectedPath: string): value is string {
+  if (typeof value !== 'string') {
+    return false;
+  }
+
+  try {
+    const url = new URL(value);
+    return (
+      url.protocol === 'https:' &&
+      url.hostname === 'downloads.veldmuislinux.org' &&
+      url.pathname === expectedPath &&
+      !url.search &&
+      !url.hash
+    );
+  } catch {
+    return false;
+  }
+}
+
+function parseInstallerChannel(value: unknown, installer: InstallerKind): InstallerChannel | null {
+  if (!value || typeof value !== 'object') {
+    return null;
+  }
+
+  const candidate = value as Partial<InstallerChannel>;
+  const releaseTag = candidate.release_tag;
+  const iso = candidate.iso;
+  const manifest = candidate.manifest;
+
+  if (
+    candidate.schema_version !== 1 ||
+    candidate.channel !== 'stable' ||
+    candidate.installer !== installer ||
+    typeof releaseTag !== 'string' ||
+    !/^\d{4}\.\d{2}(?:\.\d{2}(?:\.(?:[2-9]|[1-9]\d+))?)?$/.test(releaseTag) ||
+    typeof candidate.published_at !== 'string' ||
+    !iso ||
+    !manifest
+  ) {
+    return null;
+  }
+
+  const isoName = `veldmuis-${releaseTag}-${installer}-x86_64.iso`;
+  const immutablePath = `/iso/releases/${releaseTag}/${isoName}`;
+
+  if (
+    iso.name !== isoName ||
+    !isTrustedDownloadUrl(iso.url, immutablePath) ||
+    !Number.isSafeInteger(iso.bytes) ||
+    iso.bytes <= 0 ||
+    typeof iso.sha256 !== 'string' ||
+    !/^[0-9a-f]{64}$/.test(iso.sha256) ||
+    !isTrustedDownloadUrl(iso.checksum_url, `${immutablePath}.sha256`) ||
+    !isTrustedDownloadUrl(
+      manifest.url,
+      `/iso/releases/${releaseTag}/veldmuis-${releaseTag}-${installer}-x86_64.manifest.txt`,
+    ) ||
+    !isTrustedDownloadUrl(
+      manifest.signature_url,
+      `/iso/releases/${releaseTag}/veldmuis-${releaseTag}-${installer}-x86_64.manifest.txt.sig`,
+    )
+  ) {
+    return null;
+  }
+
+  return candidate as InstallerChannel;
+}
+
 function pickPrimaryDownloadTarget(release: GitHubRelease): ReleaseDownloadTarget | null {
   const primaryAsset = pickPrimaryAsset(release.assets);
 
@@ -343,6 +443,7 @@ function buildReleaseCard(
 function buildReleaseActions(
   release: GitHubRelease,
   fallbackHero: typeof siteContent.hero,
+  channels: InstallerChannels,
 ): ReleaseActions {
   const externalIsoUrl = extractExternalIsoUrl(release.body);
   const externalChecksumUrl = extractExternalChecksumUrl(release.body);
@@ -389,19 +490,46 @@ function buildReleaseActions(
     };
   }
 
+  if (channels.network) {
+    primary = {
+      label: 'Network installer',
+      href: channels.network.iso.url,
+      external: true,
+    };
+  }
+  if (channels.offline) {
+    secondary = {
+      label: 'Offline installer',
+      href: channels.offline.iso.url,
+      external: true,
+    };
+  }
+
   return {
     primary,
     secondary,
-    tertiary: {
-      label: 'View Build',
-      href: fallbackHero.secondaryCta.href,
-      external: true,
-    },
-    quaternary: {
-      label: 'View Release',
-      href: release.html_url || buildReleasesPageUrl(fallbackHero.secondaryCta.href),
-      external: true,
-    },
+    tertiary: channels.network
+      ? {
+          label: 'Network SHA256',
+          href: channels.network.iso.checksum_url,
+          external: true,
+        }
+      : {
+          label: 'View Build',
+          href: fallbackHero.secondaryCta.href,
+          external: true,
+        },
+    quaternary: channels.offline
+      ? {
+          label: 'Offline SHA256',
+          href: channels.offline.iso.checksum_url,
+          external: true,
+        }
+      : {
+          label: 'View Release',
+          href: release.html_url || buildReleasesPageUrl(fallbackHero.secondaryCta.href),
+          external: true,
+        },
   };
 }
 
@@ -429,6 +557,10 @@ export class App {
   protected readonly desktopTime = signal(this.formatDesktopTime());
   protected readonly desktopDate = signal(this.formatDesktopDate());
   private readonly latestRelease = signal<GitHubRelease | null>(null);
+  private readonly installerChannels = signal<InstallerChannels>({
+    network: null,
+    offline: null,
+  });
   private readonly isReleaseLoading = signal(true);
   private windowDragState: WindowDragState | null = null;
   protected readonly showReleaseCard = computed(() => !this.isReleaseLoading());
@@ -439,20 +571,44 @@ export class App {
   );
   protected readonly releaseActions = computed(() =>
     this.latestRelease()
-      ? buildReleaseActions(this.latestRelease()!, this.content.hero)
+      ? buildReleaseActions(this.latestRelease()!, this.content.hero, this.installerChannels())
       : {
-          primary: this.content.hero.primaryCta,
-          secondary: {
-            label: 'Download SHA256',
-            href: `${this.content.hero.primaryCta.href}.sha256`,
-            external: true,
-          },
-          tertiary: this.content.hero.secondaryCta,
-          quaternary: {
-            label: 'View Release',
-            href: buildReleasesPageUrl(this.content.hero.secondaryCta.href),
-            external: true,
-          },
+          primary: this.installerChannels().network
+            ? {
+                label: 'Network installer',
+                href: this.installerChannels().network!.iso.url,
+                external: true,
+              }
+            : this.content.hero.primaryCta,
+          secondary: this.installerChannels().offline
+            ? {
+                label: 'Offline installer',
+                href: this.installerChannels().offline!.iso.url,
+                external: true,
+              }
+            : {
+                label: 'Download SHA256',
+                href: `${this.content.hero.primaryCta.href}.sha256`,
+                external: true,
+              },
+          tertiary: this.installerChannels().network
+            ? {
+                label: 'Network SHA256',
+                href: this.installerChannels().network!.iso.checksum_url,
+                external: true,
+              }
+            : this.content.hero.secondaryCta,
+          quaternary: this.installerChannels().offline
+            ? {
+                label: 'Offline SHA256',
+                href: this.installerChannels().offline!.iso.checksum_url,
+                external: true,
+              }
+            : {
+                label: 'View Release',
+                href: buildReleasesPageUrl(this.content.hero.secondaryCta.href),
+                external: true,
+              },
         },
   );
 
@@ -480,7 +636,7 @@ export class App {
       this.desktopTime.set(this.formatDesktopTime());
       this.desktopDate.set(this.formatDesktopDate());
     }, 30_000);
-    void this.loadLatestRelease();
+    void this.loadReleaseData();
   }
 
   protected openWindow(windowId: (typeof siteContent.demo.windows)[number]['id']): void {
@@ -624,6 +780,14 @@ export class App {
     return `${date.getFullYear()}/${month}/${day}`;
   }
 
+  private async loadReleaseData(): Promise<void> {
+    try {
+      await Promise.all([this.loadLatestRelease(), this.loadInstallerChannels()]);
+    } finally {
+      this.isReleaseLoading.set(false);
+    }
+  }
+
   private async loadLatestRelease(): Promise<void> {
     try {
       const response = await fetch(GITHUB_RELEASES_URL, {
@@ -644,8 +808,29 @@ export class App {
       }
     } catch {
       // Fall back to the bundled release content if GitHub is unavailable.
-    } finally {
-      this.isReleaseLoading.set(false);
     }
+  }
+
+  private async loadInstallerChannels(): Promise<void> {
+    const loadChannel = async (installer: InstallerKind): Promise<InstallerChannel | null> => {
+      try {
+        const response = await fetch(INSTALLER_CHANNEL_URLS[installer], {
+          headers: {
+            Accept: 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          return null;
+        }
+
+        return parseInstallerChannel(await response.json(), installer);
+      } catch {
+        return null;
+      }
+    };
+
+    const [network, offline] = await Promise.all([loadChannel('network'), loadChannel('offline')]);
+    this.installerChannels.set({ network, offline });
   }
 }
