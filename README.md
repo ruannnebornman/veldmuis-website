@@ -74,6 +74,11 @@ Static assets live in:
 
 - `public/assets`
 
+## Contribution Flow
+
+Changes to `main` go through a pull request and the required `Validate Website`
+check. See [CONTRIBUTING.md](CONTRIBUTING.md) for the branch and review policy.
+
 ## Project Layout
 
 ```text

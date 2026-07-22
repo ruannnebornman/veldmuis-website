@@ -235,6 +235,84 @@ describe('App', () => {
     expect(compiled.textContent).toContain('Stable');
   });
 
+  it('should use immutable network and offline installer channels when available', async () => {
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => [],
+      } as Response)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          schema_version: 1,
+          channel: 'stable',
+          installer: 'network',
+          release_tag: '2026.07',
+          published_at: '2026-07-01T19:18:07Z',
+          iso: {
+            name: 'veldmuis-2026.07-network-x86_64.iso',
+            url: 'https://downloads.veldmuislinux.org/iso/releases/2026.07/veldmuis-2026.07-network-x86_64.iso',
+            bytes: 2433222656,
+            sha256: 'a'.repeat(64),
+            checksum_url:
+              'https://downloads.veldmuislinux.org/iso/releases/2026.07/veldmuis-2026.07-network-x86_64.iso.sha256',
+          },
+          manifest: {
+            url: 'https://downloads.veldmuislinux.org/iso/releases/2026.07/veldmuis-2026.07-network-x86_64.manifest.txt',
+            signature_url:
+              'https://downloads.veldmuislinux.org/iso/releases/2026.07/veldmuis-2026.07-network-x86_64.manifest.txt.sig',
+          },
+        }),
+      } as Response)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          schema_version: 1,
+          channel: 'stable',
+          installer: 'offline',
+          release_tag: '2026.07.22',
+          published_at: '2026-07-22T17:35:00Z',
+          iso: {
+            name: 'veldmuis-2026.07.22-offline-x86_64.iso',
+            url: 'https://downloads.veldmuislinux.org/iso/releases/2026.07.22/veldmuis-2026.07.22-offline-x86_64.iso',
+            bytes: 4666042368,
+            sha256: 'b'.repeat(64),
+            checksum_url:
+              'https://downloads.veldmuislinux.org/iso/releases/2026.07.22/veldmuis-2026.07.22-offline-x86_64.iso.sha256',
+          },
+          manifest: {
+            url: 'https://downloads.veldmuislinux.org/iso/releases/2026.07.22/veldmuis-2026.07.22-offline-x86_64.manifest.txt',
+            signature_url:
+              'https://downloads.veldmuislinux.org/iso/releases/2026.07.22/veldmuis-2026.07.22-offline-x86_64.manifest.txt.sig',
+          },
+        }),
+      } as Response);
+
+    const fixture = TestBed.createComponent(App);
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const primaryAction = compiled.querySelector(
+      '.release-actions .button-primary',
+    ) as HTMLAnchorElement;
+    const secondaryAction = compiled.querySelector(
+      '.release-actions .button-secondary',
+    ) as HTMLAnchorElement;
+    const releaseLinks = compiled.querySelectorAll<HTMLAnchorElement>('.release-links a');
+
+    expect(primaryAction.textContent).toContain('Network installer');
+    expect(primaryAction.getAttribute('href')).toContain(
+      '/releases/2026.07/veldmuis-2026.07-network-x86_64.iso',
+    );
+    expect(secondaryAction.textContent).toContain('Offline installer');
+    expect(secondaryAction.getAttribute('href')).toContain(
+      '/releases/2026.07.22/veldmuis-2026.07.22-offline-x86_64.iso',
+    );
+    expect(releaseLinks[0]?.textContent).toContain('Network SHA256');
+    expect(releaseLinks[1]?.textContent).toContain('Offline SHA256');
+  });
+
   it('should use an external ISO link from a stable release when no ISO asset is attached', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
       ok: true,
