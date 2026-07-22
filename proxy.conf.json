@@ -1,0 +1,8 @@
+{
+  "/iso": {
+    "target": "https://downloads.veldmuislinux.org",
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "warn"
+  }
+}

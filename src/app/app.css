@@ -81,54 +81,57 @@
 }
 
 .release-actions {
-  display: flex;
   width: 100%;
-  gap: 1rem;
-}
-
-.release-actions .button {
-  flex: 1 1 50%;
-  min-width: 0;
-  justify-content: center;
-}
-
-.release-links {
-  width: 100%;
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   align-items: center;
   border-radius: 999px;
-  border: 1px solid rgba(255, 225, 192, 0.1);
-  background: rgba(255, 245, 225, 0.03);
-  box-shadow: inset 0 1px 0 rgba(255, 227, 191, 0.04);
+  border: 1px solid rgba(255, 193, 122, 0.28);
+  background: var(--gradient-button);
+  background-repeat: no-repeat;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 227, 191, 0.18),
+    0 12px 28px rgba(72, 26, 19, 0.2);
   overflow: hidden;
 }
 
-.release-link {
+.release-action {
   display: inline-flex;
-  flex: 1 1 50%;
   align-items: center;
   justify-content: center;
   min-height: 2.5rem;
   min-width: 0;
   padding: 0.65rem 1.05rem;
-  color: var(--color-text-muted);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--color-bg-deep);
   font-size: 0.92rem;
-  font-weight: 700;
+  font-weight: 800;
   line-height: 1;
+  text-align: center;
   text-decoration: none;
   transition:
     background 180ms ease,
-    color 180ms ease;
+    filter 180ms ease;
 }
 
-.release-link + .release-link {
-  border-left: 1px solid rgba(255, 225, 192, 0.1);
+.release-action:nth-child(even) {
+  border-left: 1px solid rgba(45, 17, 14, 0.22);
 }
 
-.release-link:hover,
-.release-link:focus-visible {
-  background: rgba(255, 245, 225, 0.08);
-  color: var(--color-text);
+.release-action:nth-child(n + 3) {
+  border-top: 1px solid rgba(45, 17, 14, 0.22);
+}
+
+.release-action:hover,
+.release-action:focus-visible {
+  transform: none;
+  background: rgba(255, 245, 225, 0.12);
+  box-shadow: none;
+  color: var(--color-bg-deep);
+  filter: brightness(1.08);
 }
 
 .hero-meta {
@@ -379,14 +382,6 @@
     font-size: 2.55rem;
   }
 
-  .release-links {
-    width: 100%;
-  }
-
-  .release-link {
-    flex: 1 1 50%;
-  }
-
   .release-meta-grid div:first-child {
     justify-items: start;
     text-align: left;
@@ -403,15 +398,6 @@
 .hero-actions .button {
   flex: 1 1 100%;
   justify-content: center;
-}
-
-.hero-actions .button-primary {
-  background: linear-gradient(
-    90deg,
-    var(--color-accent-bright) 0%,
-    var(--color-accent-gold) 48%,
-    var(--color-accent-copper) 115%
-  );
 }
 
 .route-shell {
