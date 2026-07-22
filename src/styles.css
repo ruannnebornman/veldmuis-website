@@ -15,6 +15,13 @@
   --color-accent-gold: #efaa3f;
   --color-accent-copper: #cb6e31;
   --color-accent-ember: #a34e29;
+  --gradient-button: linear-gradient(
+    90deg,
+    var(--color-accent-bright) 0%,
+    var(--color-accent-gold) 42%,
+    var(--color-accent-copper) 78%,
+    var(--color-accent-ember) 125%
+  );
   --color-accent-moss: #655d3f;
   --color-accent-mauve: #72596f;
   --color-cream: #fbf0df;
@@ -208,7 +215,8 @@ select {
 }
 
 .button-primary {
-  background: linear-gradient(135deg, var(--color-accent-bright), var(--color-accent-copper));
+  background: var(--gradient-button);
+  background-repeat: no-repeat;
   color: var(--color-bg-deep);
   border-color: transparent;
   box-shadow: var(--shadow-glow);

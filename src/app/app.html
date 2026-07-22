@@ -462,7 +462,7 @@
 
             <div class="release-actions">
               <a
-                class="button button-primary"
+                class="release-action"
                 [href]="releaseActions().primary.href"
                 [attr.target]="releaseActions().primary.external ? '_blank' : null"
                 [attr.rel]="releaseActions().primary.external ? 'noreferrer noopener' : null"
@@ -470,24 +470,23 @@
                 {{ releaseActions().primary.label }}
               </a>
               <a
-                class="button button-secondary"
+                class="release-action"
+                [href]="releaseActions().tertiary.href"
+                [attr.target]="releaseActions().tertiary.external ? '_blank' : null"
+                [attr.rel]="releaseActions().tertiary.external ? 'noreferrer noopener' : null"
+              >
+                {{ releaseActions().tertiary.label }}
+              </a>
+              <a
+                class="release-action"
                 [href]="releaseActions().secondary.href"
                 [attr.target]="releaseActions().secondary.external ? '_blank' : null"
                 [attr.rel]="releaseActions().secondary.external ? 'noreferrer noopener' : null"
               >
                 {{ releaseActions().secondary.label }}
               </a>
-            </div>
-            <div class="release-links">
               <a
-                class="release-link"
-                [href]="releaseActions().tertiary.href"
-                [attr.target]="releaseActions().tertiary.external ? '_blank' : null"
-                [attr.rel]="releaseActions().tertiary.external ? 'noreferrer noopener' : null"
-                >{{ releaseActions().tertiary.label }}</a
-              >
-              <a
-                class="release-link"
+                class="release-action"
                 [href]="releaseActions().quaternary.href"
                 [attr.target]="releaseActions().quaternary.external ? '_blank' : null"
                 [attr.rel]="releaseActions().quaternary.external ? 'noreferrer noopener' : null"

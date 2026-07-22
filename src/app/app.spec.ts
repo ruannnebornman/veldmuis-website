@@ -206,16 +206,16 @@ describe('App', () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
     const primaryAction = compiled.querySelector(
-      '.release-actions .button-primary',
+      '.release-actions .release-action:first-child',
     ) as HTMLAnchorElement;
     const secondaryAction = compiled.querySelector(
-      '.release-actions .button-secondary',
+      '.release-actions .release-action:nth-child(3)',
     ) as HTMLAnchorElement;
     const buildLink = compiled.querySelector(
-      '.release-links .release-link:first-child',
+      '.release-actions .release-action:nth-child(2)',
     ) as HTMLAnchorElement;
     const releaseLink = compiled.querySelector(
-      '.release-links .release-link:last-child',
+      '.release-actions .release-action:nth-child(4)',
     ) as HTMLAnchorElement;
 
     expect(compiled.querySelector('.release-kicker')?.textContent).toContain(
@@ -294,12 +294,14 @@ describe('App', () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
     const primaryAction = compiled.querySelector(
-      '.release-actions .button-primary',
+      '.release-actions .release-action:first-child',
     ) as HTMLAnchorElement;
     const secondaryAction = compiled.querySelector(
-      '.release-actions .button-secondary',
+      '.release-actions .release-action:nth-child(3)',
     ) as HTMLAnchorElement;
-    const releaseLinks = compiled.querySelectorAll<HTMLAnchorElement>('.release-links a');
+    const releaseLinks = compiled.querySelectorAll<HTMLAnchorElement>(
+      '.release-actions .release-action:nth-child(even)',
+    );
 
     expect(primaryAction.textContent).toContain('Network installer');
     expect(primaryAction.getAttribute('href')).toContain(
@@ -343,10 +345,10 @@ describe('App', () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
     const primaryAction = compiled.querySelector(
-      '.release-actions .button-primary',
+      '.release-actions .release-action:first-child',
     ) as HTMLAnchorElement;
     const secondaryAction = compiled.querySelector(
-      '.release-actions .button-secondary',
+      '.release-actions .release-action:nth-child(3)',
     ) as HTMLAnchorElement;
 
     expect(compiled.querySelector('.release-version')?.textContent).toContain('2.0.0');
@@ -394,10 +396,10 @@ describe('App', () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
     const primaryAction = compiled.querySelector(
-      '.release-actions .button-primary',
+      '.release-actions .release-action:first-child',
     ) as HTMLAnchorElement;
     const secondaryAction = compiled.querySelector(
-      '.release-actions .button-secondary',
+      '.release-actions .release-action:nth-child(3)',
     ) as HTMLAnchorElement;
 
     expect(compiled.querySelector('.release-version')?.textContent).toContain('1.0.0');
@@ -446,10 +448,10 @@ describe('App', () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
     const primaryAction = compiled.querySelector(
-      '.release-actions .button-primary',
+      '.release-actions .release-action:first-child',
     ) as HTMLAnchorElement;
     const secondaryAction = compiled.querySelector(
-      '.release-actions .button-secondary',
+      '.release-actions .release-action:nth-child(3)',
     ) as HTMLAnchorElement;
 
     expect(compiled.querySelector('.release-version')?.textContent).toContain('1.4.1');

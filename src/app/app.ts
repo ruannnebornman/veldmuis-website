@@ -2,7 +2,10 @@ import { Component, computed, signal } from '@angular/core';
 import { siteContent } from './data/site-content';
 
 const GITHUB_RELEASES_URL = 'https://api.github.com/repos/ruannnebornman/veldmuis/releases';
-const DOWNLOAD_BASE_URL = 'https://downloads.veldmuislinux.org/iso';
+const DOWNLOAD_BASE_URL =
+  globalThis.location?.port === '4200'
+    ? '/iso'
+    : 'https://downloads.veldmuislinux.org/iso';
 const INSTALLER_CHANNEL_URLS = {
   network: `${DOWNLOAD_BASE_URL}/channels/network.json`,
   offline: `${DOWNLOAD_BASE_URL}/channels/offline.json`,
