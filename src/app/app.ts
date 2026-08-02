@@ -61,8 +61,6 @@ interface ReleaseCardContent {
   status: string;
   date: string;
   version: string;
-  summary: string;
-  points: readonly string[];
   details: readonly ReleaseDetail[];
 }
 
@@ -70,6 +68,7 @@ interface ReleaseAction {
   label: string;
   href: string;
   external: boolean;
+  hint?: string;
 }
 
 interface ReleaseActions {
@@ -99,116 +98,12 @@ interface WindowDragState {
   height: number;
 }
 
-function isMarkdownHeading(line: string): boolean {
-  return /^#{1,6}\s+/.test(line);
-}
-
-function matchesSectionHeading(line: string, sectionHeading: string): boolean {
-  const headingMatch = line.match(/^#{1,6}\s+(.+)$/);
-  return headingMatch?.[1]?.trim().toLowerCase() === sectionHeading.toLowerCase();
-}
-
-function isReleaseMetadataLine(line: string): boolean {
-  const normalized = line
-    .trim()
-    .replace(/^[-*]\s+/, '')
-    .toLowerCase();
-
-  return (
-    normalized.startsWith('iso download:') ||
-    normalized.startsWith('immutable iso:') ||
-    normalized.startsWith('sha256 download:') ||
-    normalized.startsWith('checksum asset:') ||
-    normalized.startsWith('sha256:') ||
-    normalized.startsWith('direct https iso:') ||
-    normalized.startsWith('direct https checksum:') ||
-    normalized.startsWith('primary asset:') ||
-    normalized.startsWith('asset size:')
-  );
-}
-
-function cleanReleaseText(text: string): string {
-  return text
-    .replace(/`([^`]+)`/g, '$1')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
 function buildReleasesPageUrl(repoUrl: string): string {
   return `${repoUrl.replace(/\/+$/, '')}/releases`;
 }
 
 function pickDisplayRelease(releases: GitHubRelease[]): GitHubRelease | null {
   return releases.find((release) => !release.draft && !release.prerelease) ?? null;
-}
-
-function extractSectionBullets(body: string | null, sectionHeading: string): string[] {
-  if (!body) {
-    return [];
-  }
-
-  const bullets: string[] = [];
-  let inSection = false;
-
-  for (const line of body.split('\n')) {
-    const trimmedLine = line.trim();
-
-    if (isMarkdownHeading(trimmedLine)) {
-      if (inSection) {
-        break;
-      }
-
-      inSection = matchesSectionHeading(trimmedLine, sectionHeading);
-      continue;
-    }
-
-    if (inSection && trimmedLine.startsWith('- ')) {
-      bullets.push(cleanReleaseText(trimmedLine.slice(2)));
-    }
-  }
-
-  return bullets;
-}
-
-function extractAllBullets(body: string | null): string[] {
-  if (!body) {
-    return [];
-  }
-
-  return body
-    .split('\n')
-    .map((line) => line.trim())
-    .filter((line) => line.startsWith('- '))
-    .map((line) => cleanReleaseText(line.slice(2)));
-}
-
-function extractFirstParagraph(body: string | null): string | null {
-  if (!body) {
-    return null;
-  }
-
-  const paragraphLines: string[] = [];
-
-  for (const line of body.split('\n')) {
-    const trimmedLine = line.trim();
-
-    if (
-      !trimmedLine ||
-      isMarkdownHeading(trimmedLine) ||
-      trimmedLine.startsWith('- ') ||
-      isReleaseMetadataLine(trimmedLine)
-    ) {
-      if (paragraphLines.length > 0) {
-        break;
-      }
-
-      continue;
-    }
-
-    paragraphLines.push(cleanReleaseText(trimmedLine));
-  }
-
-  return paragraphLines.length > 0 ? paragraphLines.join(' ') : null;
 }
 
 function pickPrimaryAsset(assets: GitHubReleaseAsset[]): GitHubReleaseAsset | null {
@@ -417,25 +312,11 @@ function buildReleaseCard(
   release: GitHubRelease,
   fallbackRelease: typeof siteContent.release,
 ): ReleaseCardContent {
-  const highlights = extractSectionBullets(release.body, 'Highlights');
-  const allBullets = extractAllBullets(release.body);
-  const summary = cleanReleaseText(
-    highlights[0] ??
-      allBullets[0] ??
-      extractFirstParagraph(release.body) ??
-      fallbackRelease.summary,
-  );
-  const points = (highlights.length > 0 ? highlights.slice(1) : allBullets.slice(1))
-    .filter((point) => point !== summary)
-    .slice(0, 2);
-
   return {
     kicker: 'Latest GitHub release',
     status: inferReleaseStatus(release),
     date: formatReleaseDate(release.published_at, fallbackRelease.date),
     version: formatReleaseVersion(release.tag_name, fallbackRelease.version),
-    summary,
-    points: points.length > 0 ? points : fallbackRelease.points,
     details: [
       { label: 'Release tag', value: release.tag_name || fallbackRelease.version },
       { label: 'Channel', value: release.prerelease ? 'Prerelease' : 'Stable' },
@@ -452,7 +333,7 @@ function buildReleaseActions(
   const externalChecksumUrl = extractExternalChecksumUrl(release.body);
   const isoAsset = release.assets.find((asset) => /\.iso$/i.test(asset.name));
   const checksumAsset = release.assets.find((asset) => /\.sha256$/i.test(asset.name));
-  const fallbackChecksumUrl = `${fallbackHero.primaryCta.href}.sha256`;
+  const releasesPageUrl = buildReleasesPageUrl(fallbackHero.secondaryCta.href);
   let primary: ReleaseAction;
   let secondary: ReleaseAction;
 
@@ -481,28 +362,33 @@ function buildReleaseActions(
         }
       : {
           label: 'Download SHA256',
-          href: fallbackChecksumUrl,
+          href: `${isoAsset.browser_download_url}.sha256`,
           external: true,
         };
   } else {
-    primary = fallbackHero.primaryCta;
+    primary = {
+      label: fallbackHero.primaryCta.label,
+      href: releasesPageUrl,
+      external: true,
+    };
     secondary = {
       label: 'Download SHA256',
-      href: fallbackChecksumUrl,
+      href: releasesPageUrl,
       external: true,
     };
   }
 
   if (channels.network) {
     primary = {
-      label: 'Network installer',
+      label: 'Download ISO',
       href: channels.network.iso.url,
       external: true,
+      hint: formatBytes(channels.network.iso.bytes),
     };
   }
   if (channels.offline) {
     secondary = {
-      label: 'Offline installer',
+      label: 'Offline ISO',
       href: channels.offline.iso.url,
       external: true,
     };
@@ -513,7 +399,7 @@ function buildReleaseActions(
     secondary,
     tertiary: channels.network
       ? {
-          label: 'Network SHA256',
+          label: 'SHA256',
           href: channels.network.iso.checksum_url,
           external: true,
         }
@@ -572,31 +458,32 @@ export class App {
       ? buildReleaseCard(this.latestRelease()!, this.content.release)
       : this.content.release,
   );
-  protected readonly releaseActions = computed(() =>
+  protected readonly releaseActions = computed<ReleaseActions>(() =>
     this.latestRelease()
       ? buildReleaseActions(this.latestRelease()!, this.content.hero, this.installerChannels())
       : {
           primary: this.installerChannels().network
             ? {
-                label: 'Network installer',
+                label: 'Download ISO',
                 href: this.installerChannels().network!.iso.url,
                 external: true,
+                hint: formatBytes(this.installerChannels().network!.iso.bytes),
               }
             : this.content.hero.primaryCta,
           secondary: this.installerChannels().offline
             ? {
-                label: 'Offline installer',
+                label: 'Offline ISO',
                 href: this.installerChannels().offline!.iso.url,
                 external: true,
               }
             : {
                 label: 'Download SHA256',
-                href: `${this.content.hero.primaryCta.href}.sha256`,
+                href: buildReleasesPageUrl(this.content.hero.secondaryCta.href),
                 external: true,
               },
           tertiary: this.installerChannels().network
             ? {
-                label: 'Network SHA256',
+                label: 'SHA256',
                 href: this.installerChannels().network!.iso.checksum_url,
                 external: true,
               }
