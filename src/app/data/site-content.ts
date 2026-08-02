@@ -8,7 +8,7 @@ with signed package workflows,
 shaped around the African veld at sunset.`,
     primaryCta: {
       label: 'Download ISO',
-      href: 'https://downloads.veldmuislinux.org/iso/latest.iso',
+      href: 'https://github.com/ruannnebornman/veldmuis/releases',
       external: true,
     },
     secondaryCta: {
@@ -17,7 +17,7 @@ shaped around the African veld at sunset.`,
       external: true,
     },
     tryNowCta: {
-      label: 'Try now',
+      label: 'Try it in the browser',
       href: '#try-now',
       external: false,
     },
@@ -26,20 +26,38 @@ shaped around the African veld at sunset.`,
   release: {
     kicker: 'Current release',
     status: 'Stable release line',
-    date: 'March 2026',
-    version: '1.0.0',
-    summary:
-      'Hosted ISO delivery, signed package publishing, and the website download path are now aligned for the next stable Veldmuis release.',
-    points: [
-      'Download button points at the current hosted ISO path',
-      'Signed package repositories publish to packages.veldmuislinux.org',
-      'If you see 1.0.0 here, the site is showing its fallback release card',
-    ],
+    date: 'August 2026',
+    version: '2026.08',
     details: [
       { label: 'Architecture', value: 'x86_64' },
       { label: 'Desktop', value: 'KDE Plasma' },
       { label: 'Installer', value: 'Calamares' },
       { label: 'Package flow', value: 'signed local Veldmuis repos' },
+    ],
+  },
+  build: {
+    eyebrow: 'Built in the open',
+    links: [
+      {
+        label: 'View source',
+        href: 'https://github.com/ruannnebornman/veldmuis',
+        external: true,
+      },
+      {
+        label: 'Signed manifest',
+        href: 'https://downloads.veldmuislinux.org/iso/channels/network.manifest.txt',
+        external: true,
+      },
+    ],
+  },
+  maintainer: {
+    name: 'Ruanne Bornman',
+    links: [
+      {
+        label: 'Personal site',
+        href: 'https://ruannebornman.com/',
+        external: true,
+      },
     ],
   },
   demo: {
@@ -84,5 +102,17 @@ shaped around the African veld at sunset.`,
   footer: {
     copy: 'Veldmuis Linux. Crafted in the veld, built in the open.',
     note: 'Official Veldmuis links live on this website and GitHub only.',
+    links: [
+      {
+        label: 'Official GitHub',
+        href: 'https://github.com/ruannnebornman/veldmuis',
+        external: true,
+      },
+      {
+        label: 'Maintainer',
+        href: 'https://ruannebornman.com/',
+        external: true,
+      },
+    ],
   },
 } as const;

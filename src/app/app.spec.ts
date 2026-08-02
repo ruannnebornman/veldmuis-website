@@ -49,10 +49,20 @@ describe('App', () => {
     const fixture = TestBed.createComponent(App);
     await fixture.whenStable();
     const compiled = fixture.nativeElement as HTMLElement;
-    const tryNowLink = compiled.querySelector('.hero-actions .button-primary') as HTMLAnchorElement;
+    const tryNowLink = compiled.querySelector('.hero-actions .button') as HTMLAnchorElement;
 
-    expect(tryNowLink?.textContent).toContain('Try now');
+    expect(tryNowLink?.textContent).toContain('Try it in the browser');
+    expect(tryNowLink?.classList).toContain('button-primary');
     expect(tryNowLink?.getAttribute('href')).toBe('#try-now');
+    const heroMaintainerLink = compiled.querySelector('.hero-byline a') as HTMLAnchorElement;
+    expect(heroMaintainerLink?.getAttribute('href')).toBe('https://ruannebornman.com/');
+    expect(heroMaintainerLink?.target).toBe('_blank');
+    expect(heroMaintainerLink?.rel).toContain('noopener');
+    expect(compiled.querySelector('.maintainer-section')).toBeNull();
+    expect(compiled.querySelector('.identity-note')).toBeNull();
+    expect(compiled.querySelector('.release-notes')).toBeNull();
+    expect(compiled.textContent).not.toContain('Release notes');
+    expect(compiled.textContent).not.toContain('Package repo');
   });
 
   it('should render the Veldmuis Plasma desktop when the try now route is active', async () => {
@@ -124,12 +134,17 @@ describe('App', () => {
     expect(compiled.querySelector('.window-app-id strong')?.textContent).toContain('Konsole');
   });
 
-  it('should not render duplicate footer action links', async () => {
+  it('should render footer links to the official GitHub and the maintainer site', async () => {
     const fixture = TestBed.createComponent(App);
     await fixture.whenStable();
     const compiled = fixture.nativeElement as HTMLElement;
+    const footerLinks = compiled.querySelectorAll<HTMLAnchorElement>('.footer-links a');
 
-    expect(compiled.querySelector('.footer-links')).toBeNull();
+    expect(footerLinks.length).toBeGreaterThanOrEqual(2);
+    const hrefs = Array.from(footerLinks).map((link) => link.getAttribute('href'));
+    expect(hrefs).toContain('https://github.com/ruannnebornman/veldmuis');
+    expect(hrefs).toContain('https://ruannebornman.com/');
+    expect(new Set(hrefs).size).toBe(hrefs.length);
   });
 
   it('should not render the release card until the release request settles', () => {
@@ -206,28 +221,26 @@ describe('App', () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
     const primaryAction = compiled.querySelector(
-      '.release-actions .release-action:first-child',
+      '.release-download .release-action-primary',
     ) as HTMLAnchorElement;
     const secondaryAction = compiled.querySelector(
-      '.release-actions .release-action:nth-child(3)',
+      '.release-actions-row .release-action:nth-child(1)',
     ) as HTMLAnchorElement;
     const buildLink = compiled.querySelector(
-      '.release-actions .release-action:nth-child(2)',
+      '.release-actions-row .release-action:nth-child(2)',
     ) as HTMLAnchorElement;
     const releaseLink = compiled.querySelector(
-      '.release-actions .release-action:nth-child(4)',
+      '.release-actions-row .release-action:nth-child(3)',
     ) as HTMLAnchorElement;
 
     expect(compiled.querySelector('.release-kicker')?.textContent).toContain(
       'Latest GitHub release',
     );
     expect(compiled.querySelector('.release-version')?.textContent).toContain('2.0.0');
-    expect(compiled.querySelector('.release-points li:first-child')?.textContent).toContain(
-      'First stable hosted release.',
-    );
     expect(primaryAction.getAttribute('href')).toBe(
       'https://downloads.veldmuislinux.org/iso/latest.iso',
     );
+    expect(primaryAction.textContent).toContain('Download ISO');
     expect(secondaryAction.getAttribute('href')).toContain('.iso.sha256');
     expect(buildLink.getAttribute('href')).toBe('https://github.com/ruannnebornman/veldmuis');
     expect(buildLink.textContent).toContain('View Build');
@@ -294,25 +307,35 @@ describe('App', () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
     const primaryAction = compiled.querySelector(
-      '.release-actions .release-action:first-child',
+      '.release-download .release-action-primary',
     ) as HTMLAnchorElement;
     const secondaryAction = compiled.querySelector(
-      '.release-actions .release-action:nth-child(3)',
+      '.release-actions-row .release-action:nth-child(1)',
     ) as HTMLAnchorElement;
-    const releaseLinks = compiled.querySelectorAll<HTMLAnchorElement>(
-      '.release-actions .release-action:nth-child(even)',
-    );
+    const sha256Link = compiled.querySelector(
+      '.release-actions-row .release-action:nth-child(2)',
+    ) as HTMLAnchorElement;
+    const offlineSha256Link = compiled.querySelector(
+      '.release-actions-row .release-action:nth-child(3)',
+    ) as HTMLAnchorElement;
 
-    expect(primaryAction.textContent).toContain('Network installer');
+    expect(primaryAction.textContent).toContain('Download ISO');
+    expect(primaryAction.textContent).toContain('GB');
     expect(primaryAction.getAttribute('href')).toContain(
       '/releases/2026.07/veldmuis-2026.07-network-x86_64.iso',
     );
-    expect(secondaryAction.textContent).toContain('Offline installer');
+    expect(secondaryAction.textContent).toContain('Offline ISO');
     expect(secondaryAction.getAttribute('href')).toContain(
       '/releases/2026.07.22/veldmuis-2026.07.22-offline-x86_64.iso',
     );
-    expect(releaseLinks[0]?.textContent).toContain('Network SHA256');
-    expect(releaseLinks[1]?.textContent).toContain('Offline SHA256');
+    expect(sha256Link.textContent).toContain('SHA256');
+    expect(sha256Link.getAttribute('href')).toContain(
+      '/releases/2026.07/veldmuis-2026.07-network-x86_64.iso.sha256',
+    );
+    expect(offlineSha256Link.textContent).toContain('Offline SHA256');
+    expect(offlineSha256Link.getAttribute('href')).toContain(
+      '/releases/2026.07.22/veldmuis-2026.07.22-offline-x86_64.iso.sha256',
+    );
   });
 
   it('should use an external ISO link from a stable release when no ISO asset is attached', async () => {
@@ -345,16 +368,13 @@ describe('App', () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
     const primaryAction = compiled.querySelector(
-      '.release-actions .release-action:first-child',
+      '.release-download .release-action-primary',
     ) as HTMLAnchorElement;
     const secondaryAction = compiled.querySelector(
-      '.release-actions .release-action:nth-child(3)',
+      '.release-actions-row .release-action:nth-child(1)',
     ) as HTMLAnchorElement;
 
     expect(compiled.querySelector('.release-version')?.textContent).toContain('2.0.0');
-    expect(compiled.querySelector('.release-points li:first-child')?.textContent).toContain(
-      'Hosted ISO delivery is now live on the stable release line.',
-    );
     expect(primaryAction.getAttribute('href')).toBe(
       'https://downloads.veldmuislinux.org/iso/latest.iso',
     );
@@ -396,18 +416,18 @@ describe('App', () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
     const primaryAction = compiled.querySelector(
-      '.release-actions .release-action:first-child',
+      '.release-download .release-action-primary',
     ) as HTMLAnchorElement;
     const secondaryAction = compiled.querySelector(
-      '.release-actions .release-action:nth-child(3)',
+      '.release-actions-row .release-action:nth-child(1)',
     ) as HTMLAnchorElement;
 
-    expect(compiled.querySelector('.release-version')?.textContent).toContain('1.0.0');
+    expect(compiled.querySelector('.release-version')?.textContent).toContain('2026.08');
     expect(primaryAction.getAttribute('href')).toBe(
-      'https://downloads.veldmuislinux.org/iso/latest.iso',
+      'https://github.com/ruannnebornman/veldmuis/releases',
     );
     expect(secondaryAction.getAttribute('href')).toBe(
-      'https://downloads.veldmuislinux.org/iso/latest.iso.sha256',
+      'https://github.com/ruannnebornman/veldmuis/releases',
     );
     expect(compiled.textContent).toContain('Stable release line');
   });
@@ -448,21 +468,18 @@ describe('App', () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
     const primaryAction = compiled.querySelector(
-      '.release-actions .release-action:first-child',
+      '.release-download .release-action-primary',
     ) as HTMLAnchorElement;
     const secondaryAction = compiled.querySelector(
-      '.release-actions .release-action:nth-child(3)',
+      '.release-actions-row .release-action:nth-child(1)',
     ) as HTMLAnchorElement;
 
     expect(compiled.querySelector('.release-version')?.textContent).toContain('1.4.1');
-    expect(compiled.querySelector('.release-points li:first-child')?.textContent).toContain(
-      'Stable hosted release.',
-    );
     expect(primaryAction.getAttribute('href')).toBe(
-      'https://downloads.veldmuislinux.org/iso/latest.iso',
+      'https://github.com/ruannnebornman/veldmuis/releases',
     );
     expect(secondaryAction.getAttribute('href')).toBe(
-      'https://downloads.veldmuislinux.org/iso/latest.iso.sha256',
+      'https://github.com/ruannnebornman/veldmuis/releases',
     );
     expect(primaryAction.textContent).toContain('Download ISO');
     expect(compiled.textContent).not.toContain('ISO download: /latest.iso');

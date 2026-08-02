@@ -427,74 +427,92 @@
               content.hero.tryNowCta.label
             }}</a>
           </div>
+          <p class="hero-byline">
+            Created by
+            <a
+              [href]="content.maintainer.links[0].href"
+              [attr.target]="content.maintainer.links[0].external ? '_blank' : null"
+              [attr.rel]="content.maintainer.links[0].external ? 'noreferrer noopener' : null"
+              >{{ content.maintainer.name }}</a
+            >
+          </p>
         </div>
 
-        @if (showReleaseCard()) {
-          <aside class="surface-card release-card">
-            <div class="release-header">
-              <p class="eyebrow release-kicker">{{ releaseCard().kicker }}</p>
-              <span class="eyebrow release-status">{{ releaseCard().status }}</span>
-              <h2 class="release-version">{{ releaseCard().version }}</h2>
-              <span class="release-date">{{ releaseCard().date }}</span>
-            </div>
-
-            <div class="release-notes">
-              <p class="eyebrow release-notes-heading">Release notes</p>
-
-              <div class="release-scroll-region">
-                <ul class="release-points">
-                  <li class="release-point-summary">{{ releaseCard().summary }}</li>
-                  @for (point of releaseCard().points; track point) {
-                    <li>{{ point }}</li>
-                  }
-                </ul>
+        <div class="hero-side">
+          @if (showReleaseCard()) {
+            <aside class="surface-card release-card">
+              <div class="release-header">
+                <p class="eyebrow release-kicker">{{ releaseCard().kicker }}</p>
+                <span class="eyebrow release-status">{{ releaseCard().status }}</span>
+                <h2 class="release-version">{{ releaseCard().version }}</h2>
+                <span class="release-date">{{ releaseCard().date }}</span>
               </div>
-            </div>
 
-            <dl class="release-meta-grid">
-              @for (item of releaseCard().details; track item.label) {
-                <div>
-                  <dt>{{ item.label }}</dt>
-                  <dd>{{ item.value }}</dd>
+              <dl class="release-meta-grid">
+                @for (item of releaseCard().details; track item.label) {
+                  <div>
+                    <dt>{{ item.label }}</dt>
+                    <dd>{{ item.value }}</dd>
+                  </div>
+                }
+              </dl>
+
+              <div class="release-download">
+                <a
+                  class="release-action release-action-primary"
+                  [href]="releaseActions().primary.href"
+                  [attr.target]="releaseActions().primary.external ? '_blank' : null"
+                  [attr.rel]="releaseActions().primary.external ? 'noreferrer noopener' : null"
+                >
+                  <strong>{{ releaseActions().primary.label }}</strong>
+                  @if (releaseActions().primary.hint) {
+                    <span class="release-action-hint">{{ releaseActions().primary.hint }}</span>
+                  }
+                </a>
+                <div class="release-actions-row">
+                  <a
+                    class="release-action"
+                    [href]="releaseActions().secondary.href"
+                    [attr.target]="releaseActions().secondary.external ? '_blank' : null"
+                    [attr.rel]="releaseActions().secondary.external ? 'noreferrer noopener' : null"
+                  >
+                    {{ releaseActions().secondary.label }}
+                  </a>
+                  <a
+                    class="release-action"
+                    [href]="releaseActions().tertiary.href"
+                    [attr.target]="releaseActions().tertiary.external ? '_blank' : null"
+                    [attr.rel]="releaseActions().tertiary.external ? 'noreferrer noopener' : null"
+                  >
+                    {{ releaseActions().tertiary.label }}
+                  </a>
+                  <a
+                    class="release-action"
+                    [href]="releaseActions().quaternary.href"
+                    [attr.target]="releaseActions().quaternary.external ? '_blank' : null"
+                    [attr.rel]="releaseActions().quaternary.external ? 'noreferrer noopener' : null"
+                  >
+                    {{ releaseActions().quaternary.label }}
+                  </a>
                 </div>
-              }
-            </dl>
+              </div>
+            </aside>
+          }
 
-            <div class="release-actions">
-              <a
-                class="release-action"
-                [href]="releaseActions().primary.href"
-                [attr.target]="releaseActions().primary.external ? '_blank' : null"
-                [attr.rel]="releaseActions().primary.external ? 'noreferrer noopener' : null"
-              >
-                {{ releaseActions().primary.label }}
-              </a>
-              <a
-                class="release-action"
-                [href]="releaseActions().tertiary.href"
-                [attr.target]="releaseActions().tertiary.external ? '_blank' : null"
-                [attr.rel]="releaseActions().tertiary.external ? 'noreferrer noopener' : null"
-              >
-                {{ releaseActions().tertiary.label }}
-              </a>
-              <a
-                class="release-action"
-                [href]="releaseActions().secondary.href"
-                [attr.target]="releaseActions().secondary.external ? '_blank' : null"
-                [attr.rel]="releaseActions().secondary.external ? 'noreferrer noopener' : null"
-              >
-                {{ releaseActions().secondary.label }}
-              </a>
-              <a
-                class="release-action"
-                [href]="releaseActions().quaternary.href"
-                [attr.target]="releaseActions().quaternary.external ? '_blank' : null"
-                [attr.rel]="releaseActions().quaternary.external ? 'noreferrer noopener' : null"
-                >{{ releaseActions().quaternary.label }}</a
-              >
-            </div>
-          </aside>
-        }
+          <section class="build-strip" aria-label="Build and source">
+            <span class="build-strip-eyebrow">{{ content.build.eyebrow }}</span>
+            <nav class="build-strip-links" aria-label="Build links">
+              @for (link of content.build.links; track link.href) {
+                <a
+                  [href]="link.href"
+                  [attr.target]="link.external ? '_blank' : null"
+                  [attr.rel]="link.external ? 'noreferrer noopener' : null"
+                  >{{ link.label }}</a
+                >
+              }
+            </nav>
+          </section>
+        </div>
       </div>
     </section>
   </main>
@@ -502,5 +520,15 @@
   <footer class="site-footer">
     <p class="footer-copy">{{ content.footer.copy }} {{ currentYear }}</p>
     <p class="footer-note">{{ content.footer.note }}</p>
+    <nav class="footer-links" aria-label="Official links">
+      @for (link of content.footer.links; track link.href) {
+        <a
+          [href]="link.href"
+          [attr.target]="link.external ? '_blank' : null"
+          [attr.rel]="link.external ? 'noreferrer noopener' : null"
+          >{{ link.label }}</a
+        >
+      }
+    </nav>
   </footer>
 }

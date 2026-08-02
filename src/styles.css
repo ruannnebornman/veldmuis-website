@@ -233,6 +233,17 @@ select {
   border-color: rgba(255, 214, 169, 0.18);
 }
 
+.button-tertiary {
+  background: transparent;
+  color: var(--color-sand);
+}
+
+.button-tertiary:hover,
+.button-tertiary:focus-visible {
+  background: rgba(255, 245, 225, 0.05);
+  border-color: rgba(255, 214, 169, 0.18);
+}
+
 .badge {
   width: fit-content;
   display: inline-flex;
@@ -338,6 +349,11 @@ select {
   .site-footer {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .footer-copy,
+  .footer-note {
+    flex: 0 1 auto;
   }
 
   .footer-note {
