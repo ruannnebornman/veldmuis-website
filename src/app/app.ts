@@ -391,6 +391,7 @@ function buildReleaseActions(
       label: 'Offline ISO',
       href: channels.offline.iso.url,
       external: true,
+      hint: formatBytes(channels.offline.iso.bytes),
     };
   }
 
@@ -475,6 +476,7 @@ export class App {
                 label: 'Offline ISO',
                 href: this.installerChannels().offline!.iso.url,
                 external: true,
+                hint: formatBytes(this.installerChannels().offline!.iso.bytes),
               }
             : {
                 label: 'Download SHA256',
