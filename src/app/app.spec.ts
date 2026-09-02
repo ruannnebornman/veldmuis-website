@@ -310,13 +310,13 @@ describe('App', () => {
       '.release-download .release-action-primary',
     ) as HTMLAnchorElement;
     const secondaryAction = compiled.querySelector(
-      '.release-actions-row .release-action:nth-child(1)',
+      '.release-iso-actions .release-action:nth-child(2)',
     ) as HTMLAnchorElement;
     const sha256Link = compiled.querySelector(
-      '.release-actions-row .release-action:nth-child(2)',
+      '.release-actions-row .release-action:nth-child(1)',
     ) as HTMLAnchorElement;
     const offlineSha256Link = compiled.querySelector(
-      '.release-actions-row .release-action:nth-child(3)',
+      '.release-actions-row .release-action:nth-child(2)',
     ) as HTMLAnchorElement;
 
     expect(primaryAction.textContent).toContain('Download ISO');
@@ -325,6 +325,8 @@ describe('App', () => {
       '/releases/2026.07/veldmuis-2026.07-network-x86_64.iso',
     );
     expect(secondaryAction.textContent).toContain('Offline ISO');
+    expect(secondaryAction.textContent).toContain('4.3 GB');
+    expect(secondaryAction.classList).toContain('release-action-primary');
     expect(secondaryAction.getAttribute('href')).toContain(
       '/releases/2026.07.22/veldmuis-2026.07.22-offline-x86_64.iso',
     );

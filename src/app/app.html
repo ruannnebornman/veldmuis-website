@@ -458,26 +458,53 @@
               </dl>
 
               <div class="release-download">
-                <a
-                  class="release-action release-action-primary"
-                  [href]="releaseActions().primary.href"
-                  [attr.target]="releaseActions().primary.external ? '_blank' : null"
-                  [attr.rel]="releaseActions().primary.external ? 'noreferrer noopener' : null"
+                <div
+                  class="release-iso-actions"
+                  [class.release-iso-actions-has-offline-iso]="
+                    releaseActions().secondary.label === 'Offline ISO'
+                  "
                 >
-                  <strong>{{ releaseActions().primary.label }}</strong>
-                  @if (releaseActions().primary.hint) {
-                    <span class="release-action-hint">{{ releaseActions().primary.hint }}</span>
-                  }
-                </a>
-                <div class="release-actions-row">
                   <a
-                    class="release-action"
-                    [href]="releaseActions().secondary.href"
-                    [attr.target]="releaseActions().secondary.external ? '_blank' : null"
-                    [attr.rel]="releaseActions().secondary.external ? 'noreferrer noopener' : null"
+                    class="release-action release-action-primary"
+                    [href]="releaseActions().primary.href"
+                    [attr.target]="releaseActions().primary.external ? '_blank' : null"
+                    [attr.rel]="releaseActions().primary.external ? 'noreferrer noopener' : null"
                   >
-                    {{ releaseActions().secondary.label }}
+                    <strong>{{ releaseActions().primary.label }}</strong>
+                    @if (releaseActions().primary.hint) {
+                      <span class="release-action-hint">{{ releaseActions().primary.hint }}</span>
+                    }
                   </a>
+                  @if (releaseActions().secondary.label === 'Offline ISO') {
+                    <a
+                      class="release-action release-action-primary"
+                      [href]="releaseActions().secondary.href"
+                      [attr.target]="releaseActions().secondary.external ? '_blank' : null"
+                      [attr.rel]="releaseActions().secondary.external ? 'noreferrer noopener' : null"
+                    >
+                      <strong>{{ releaseActions().secondary.label }}</strong>
+                      @if (releaseActions().secondary.hint) {
+                        <span class="release-action-hint">{{ releaseActions().secondary.hint }}</span>
+                      }
+                    </a>
+                  }
+                </div>
+                <div
+                  class="release-actions-row"
+                  [class.release-actions-row-has-offline-iso]="
+                    releaseActions().secondary.label === 'Offline ISO'
+                  "
+                >
+                  @if (releaseActions().secondary.label !== 'Offline ISO') {
+                    <a
+                      class="release-action"
+                      [href]="releaseActions().secondary.href"
+                      [attr.target]="releaseActions().secondary.external ? '_blank' : null"
+                      [attr.rel]="releaseActions().secondary.external ? 'noreferrer noopener' : null"
+                    >
+                      {{ releaseActions().secondary.label }}
+                    </a>
+                  }
                   <a
                     class="release-action"
                     [href]="releaseActions().tertiary.href"
