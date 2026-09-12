@@ -8,7 +8,6 @@ const DOWNLOAD_BASE_URL =
     : 'https://downloads.veldmuislinux.org/iso';
 const INSTALLER_CHANNEL_URLS = {
   network: `${DOWNLOAD_BASE_URL}/channels/network.json`,
-  offline: `${DOWNLOAD_BASE_URL}/channels/offline.json`,
 } as const;
 
 type InstallerKind = keyof typeof INSTALLER_CHANNEL_URLS;
@@ -386,14 +385,6 @@ function buildReleaseActions(
       hint: formatBytes(channels.network.iso.bytes),
     };
   }
-  if (channels.offline) {
-    secondary = {
-      label: 'Offline ISO',
-      href: channels.offline.iso.url,
-      external: true,
-      hint: formatBytes(channels.offline.iso.bytes),
-    };
-  }
 
   return {
     primary,
@@ -409,17 +400,11 @@ function buildReleaseActions(
           href: fallbackHero.secondaryCta.href,
           external: true,
         },
-    quaternary: channels.offline
-      ? {
-          label: 'Offline SHA256',
-          href: channels.offline.iso.checksum_url,
-          external: true,
-        }
-      : {
-          label: 'View Release',
-          href: release.html_url || buildReleasesPageUrl(fallbackHero.secondaryCta.href),
-          external: true,
-        },
+    quaternary: {
+      label: 'View Release',
+      href: release.html_url || buildReleasesPageUrl(fallbackHero.secondaryCta.href),
+      external: true,
+    },
   };
 }
 
@@ -449,7 +434,6 @@ export class App {
   private readonly latestRelease = signal<GitHubRelease | null>(null);
   private readonly installerChannels = signal<InstallerChannels>({
     network: null,
-    offline: null,
   });
   private readonly isReleaseLoading = signal(true);
   private windowDragState: WindowDragState | null = null;
@@ -471,18 +455,11 @@ export class App {
                 hint: formatBytes(this.installerChannels().network!.iso.bytes),
               }
             : this.content.hero.primaryCta,
-          secondary: this.installerChannels().offline
-            ? {
-                label: 'Offline ISO',
-                href: this.installerChannels().offline!.iso.url,
-                external: true,
-                hint: formatBytes(this.installerChannels().offline!.iso.bytes),
-              }
-            : {
-                label: 'Download SHA256',
-                href: buildReleasesPageUrl(this.content.hero.secondaryCta.href),
-                external: true,
-              },
+          secondary: {
+            label: 'Download SHA256',
+            href: buildReleasesPageUrl(this.content.hero.secondaryCta.href),
+            external: true,
+          },
           tertiary: this.installerChannels().network
             ? {
                 label: 'SHA256',
@@ -490,17 +467,11 @@ export class App {
                 external: true,
               }
             : this.content.hero.secondaryCta,
-          quaternary: this.installerChannels().offline
-            ? {
-                label: 'Offline SHA256',
-                href: this.installerChannels().offline!.iso.checksum_url,
-                external: true,
-              }
-            : {
-                label: 'View Release',
-                href: buildReleasesPageUrl(this.content.hero.secondaryCta.href),
-                external: true,
-              },
+          quaternary: {
+            label: 'View Release',
+            href: buildReleasesPageUrl(this.content.hero.secondaryCta.href),
+            external: true,
+          },
         },
   );
 
@@ -722,7 +693,7 @@ export class App {
       }
     };
 
-    const [network, offline] = await Promise.all([loadChannel('network'), loadChannel('offline')]);
-    this.installerChannels.set({ network, offline });
+    const network = await loadChannel('network');
+    this.installerChannels.set({ network });
   }
 }
